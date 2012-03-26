@@ -1,3 +1,3 @@
 =The Building Floor Space Stock Model
-This Ruby script replaces a collection of Excel files to perform calculations related to creating a floor space stock model. 
+A Python program to represent the US building stock by state.
 It accounts for floor space, Census division, state, primary building activity, year, and building code.
