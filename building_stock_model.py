@@ -13,14 +13,9 @@ construction_history_by_state = convert_csv_to_dictionary_of_dictionaries('const
 code_key = dict(csv.reader(open('state_energy_code_key.csv')))#works because we know it has only two columns
 construction_history = dict(csv.reader(open('construction_history.csv')))#TODO: make it read in integers as integers so int() isn't required
 
-    
-'''
-Now use the model to see how a particular building stock
-falls into different code years
-'''
-'''
-#Duplicative sample code to show the steps of the more compact version below
 
+#Duplicative sample code to show the steps of the more compact version below
+'''
 #Start in 1975, establish a five-year building stock,
 #and then age everything up to the year 2010: 
 
@@ -60,46 +55,58 @@ building_code = code_compliance['USA'][code_year]
 print(total, "square feet are under the",code_year,"building code which is", building_code)
 '''
 
-
 #Create a building stock and move it forward through time
 '''This code is a more flexible and concise version
 of what is layed out above.'''
 
-# mass create a building stock:
-building_stock_objects = list()
-for i in range(1975, 1981): #(1975 through 1980)
-    building_stock_objects.append(Floor_Space(i, construction_history[str(i)], 'USA'))
+def create_building_stock(start_build_year, end_build_year, construction_data): #assumes construction_data spans start and end years
+    # mass create a building stock
+    building_stock_objects = list()
+    #todo: gotta loop through regions here too, given by construction_data
+    for i in range(start_build_year, end_build_year + 1):
+        building_stock_objects.append(Floor_Space(i, construction_data[str(i)], 'USA'))
+    return building_stock_objects
 
-#age the building stock to 2010:
-for i in range(len(building_stock_objects)):
-    building_stock_objects[i].age_n_years(35-i)
+def age_building_stock_to_year(building_stock_objects, model_end_year):
+    #age a list of building_stock_objects to model_end_year
+    for i in range(len(building_stock_objects)):
+        start_year = building_stock_objects[i].year_of_construction
+        building_stock_objects[i].age_n_years(model_end_year - start_year)
+    return building_stock_objects
 
-#store the results for 2010 in a dictionary:
-square_footage_in_2010 = dict()
-for i in range(len(building_stock_objects)):
-    start_year = building_stock_objects[i].year_of_construction
-    end_year = building_stock_objects[i].current_year
-    for j in range(start_year,end_year+1):
-        # += is forbidden in loops, so we use an if statement
-        if j in square_footage_in_2010:
-            square_footage_in_2010[j] = square_footage_in_2010[j] + building_stock_objects[i].remaining_floor_space_by_year[j]
+def return_code_bins_in_current_year(building_stock_objects): #incorrectly assuming all objects will have same current year?
+    #show a complete picture of all existing floor space bins
+    #by year, as it exists in the current_year
+    code_bins_in_current_year = dict()
+    for i in range(len(building_stock_objects)):
+        start_year = building_stock_objects[i].year_of_construction
+        end_year = building_stock_objects[i].current_year
+        for j in range(start_year,end_year+1):
+            # += is forbidden in loops, so we use an if statement
+            if j in code_bins_in_current_year:
+                code_bins_in_current_year[j] = code_bins_in_current_year[j] + building_stock_objects[i].remaining_floor_space_by_year[j]
+            else:
+                code_bins_in_current_year[j] = building_stock_objects[i].remaining_floor_space_by_year[j]
+    return code_bins_in_current_year
+
+def show_building_codes_in_current_year(code_bins_in_current_year):
+    for year in code_bins_in_current_year.keys():
+        if year in code_compliance['USA']:
+            code = code_key[code_compliance['USA'][year]]
         else:
-            square_footage_in_2010[j] = building_stock_objects[i].remaining_floor_space_by_year[j]
+            code = "none specified"
+        print(
+            "Year:",
+            year,
+            "Square feet:",
+            format(int(code_bins_in_current_year[year]),',d'),
+            "Building code:",
+            code)
 
-pprint.pprint(square_footage_in_2010)
-
-for year in square_footage_in_2010.keys():
-    if year in code_compliance['USA']:
-        code = code_key[code_compliance['USA'][year]]
-    else:
-        code = "none specified"
-    print(
-        "Year:",
-        year,
-        "Square feet:",
-        format(int(square_footage_in_2010[year]),',d'),
-        "Building code:",
-        code)
+the_eighties = create_building_stock(1975, 1980, construction_history)
+age_building_stock_to_year(the_eighties, 2010)
+code_bins = return_code_bins_in_current_year(the_eighties)
+show_building_codes_in_current_year(code_bins)
 
 
 '''Create a dictionary of total existing floor space by year,
