@@ -114,7 +114,7 @@ class Floor_Space:
         Assume "floor_space" is a dictionary object.'''
         year = self.year_of_construction
         while year < self.current_year:
-            floor_space_to_be_renovated[year] = 0.01 * floor_space_to_be_renovated[year]
+            floor_space_to_be_renovated[year] = 0.02 * floor_space_to_be_renovated[year]
             year += 1
         return floor_space_to_be_renovated
 
@@ -125,6 +125,6 @@ class Floor_Space:
         Assume "floor_space" is a dictionary object.'''
         year = self.year_of_construction
         while year < self.current_year:
-            floor_space_to_be_demolished[year] = 0.06 * floor_space_to_be_demolished[year]
+            floor_space_to_be_demolished[year] = 0.02 * floor_space_to_be_demolished[year]
             year += 1
         return floor_space_to_be_demolished
