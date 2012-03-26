@@ -108,13 +108,31 @@ class Floor_Space:
         print("The", self.year_of_construction, "building stock has been aged by", n_years, "years; the current year is now", self.current_year)
 
     def renovate(self, floor_space_to_be_renovated):
-        '''we can define a renovation rate based on
+        '''We can define a renovation rate based on
         building stock age, current year, location, etc.
-        For now, just use a static rate.
         Assume "floor_space" is a dictionary object.'''
+        if Floor_Space.verbose: print(
+            "---start the renovation function----",
+            "The current year is", self.current_year, ".",
+            "We've already demolished some floor space, so now we're going to renovate some of what's left.",
+            "Here's the floor space object we've been handed to renovate:")
+        if Floor_Space.verbose: pprint.pprint(floor_space_to_be_renovated)
         year = self.year_of_construction
         while year < self.current_year:
-            floor_space_to_be_renovated[year] = 0.02 * floor_space_to_be_renovated[year]
+            floor_space_to_be_renovated[year]
+            years_since_last_renovation = self.current_year - year
+            if years_since_last_renovation < 7:
+                rate = 0
+            elif years_since_last_renovation < 15:
+                rate = 0.01
+            elif years_since_last_renovation < 25:
+                rate = 0.05
+            elif years_since_last_renovation < 50:
+                rate = 0.07
+            else:
+                rate = 0.1
+            floor_space_to_be_renovated[year] = rate * floor_space_to_be_renovated[year]
+            if Floor_Space.verbose: print("The", year, "portion had gone", years_since_last_renovation, "years since it was last renovated, so we renovated", rate, "percent of it.") 
             year += 1
         return floor_space_to_be_renovated
 
@@ -125,6 +143,6 @@ class Floor_Space:
         Assume "floor_space" is a dictionary object.'''
         year = self.year_of_construction
         while year < self.current_year:
-            floor_space_to_be_demolished[year] = 0.02 * floor_space_to_be_demolished[year]
+            floor_space_to_be_demolished[year] = 0.01 * floor_space_to_be_demolished[year]
             year += 1
         return floor_space_to_be_demolished
