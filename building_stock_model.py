@@ -6,6 +6,7 @@ By Andrew Sturges; LBNL
 from floor_space import *
 from helper_functions import *
 import pprint
+import csv
 
 #set up some data objects:
 code_compliance = convert_csv_to_dictionary_of_dictionaries('state_energy_code_compliance_no_increase.csv')
@@ -70,7 +71,7 @@ def create_building_stock(start_build_year, end_build_year, construction_data): 
 def age_building_stock_to_year(building_stock_objects, model_end_year):
     #age a list of building_stock_objects to model_end_year
     for i in range(len(building_stock_objects)):
-        start_year = building_stock_objects[i].year_of_construction
+        start_year = building_stock_objects[i].current_year
         building_stock_objects[i].age_n_years(model_end_year - start_year)
     return building_stock_objects
 
@@ -103,10 +104,31 @@ def show_building_codes_in_current_year(code_bins_in_current_year):
             "Building code:",
             code)
 
-the_eighties = create_building_stock(1975, 1980, construction_history)
+the_eighties = create_building_stock(1980, 1980, construction_history)
 age_building_stock_to_year(the_eighties, 2010)
-code_bins = return_code_bins_in_current_year(the_eighties)
+code_bins = return_code_bins_in_current_year(the_eighties) #fun future project: animate this through time
 show_building_codes_in_current_year(code_bins)
+
+#animate the year 1975:
+_1975 = create_building_stock(1975,1975, construction_history)
+animation_data_by_year = dict()
+for year in range(1975, 2011):
+    animation_data_by_year[year] = return_code_bins_in_current_year(age_building_stock_to_year(_1975, year))
+
+#pprint.pprint(animation_data_by_year)
+#create a csv file to graph this in Excel
+#want a row of 1975 values from each stock object, so loop through all the stock objects and grab 1975:
+
+with open('animation.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    for row_year in range(1975,2011):
+        row = list()
+        for object_year in range(1975,2011):
+            if row_year in animation_data_by_year[object_year]:
+                row.append(animation_data_by_year[object_year][row_year])
+            else:
+                row.append(0) #this is so ugly please fix this later
+        writer.writerow(row)
 
 
 '''Create a dictionary of total existing floor space by year,
