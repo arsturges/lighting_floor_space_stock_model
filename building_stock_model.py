@@ -62,14 +62,11 @@ def show_building_codes_in_current_year(code_bins_in_current_year):
             else:
                 code = "none specified"
             print(
-                "State:",
-                state,
-                "Year:",
-                year,
+                "State:", state,
+                "Year:", year,
                 "Square feet:",
                 format(int(code_bins_in_current_year[state][year]),',d'),
-                "Building code:",
-                code)
+                "Building code:", code)
 
 the_eighties = create_building_stock(1980, 1981, construction_history_by_state)
 age_building_stock_to_year(the_eighties, 1982)
