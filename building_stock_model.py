@@ -24,35 +24,38 @@ def age_building_stock_to_year(building_stock_objects, year):
         building_stock_objects[i].age_n_years(year - start_year)
     return building_stock_objects
 
-def return_code_bins_in_current_year(building_stock_objects):
+def return_code_bins_in_current_year(stock_objects):
     #am I incorrectly assuming all objects will have same current year?
     #show a complete picture of all existing floor space bins
     #by state, year, and building type, as it exists in the current_year.
     #Reference it like this: code_bins_in_current_year["ID"][1992][5]
     code_bins_in_current_year = dict()
-    for stock_object in building_stock_objects:
+    for stock_object in stock_objects:
         state = stock_object.region
         start_year = stock_object.year_of_construction
         end_year = stock_object.current_year
-        if not state in code_bins_in_current_year: # the dictionary code_bins_in_current_year["AZ"] exists?
+        if not state in code_bins_in_current_year:
             code_bins_in_current_year[state] = dict()
         for year in range(start_year,end_year+1):
-            if not year in code_bins_in_current_year[state]: #the dictionary code_bins["AZ"][2005] exists?
+            if not year in code_bins_in_current_year[state]:
                 code_bins_in_current_year[state][year] = dict()
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                if not building_type in code_bins_in_current_year[state][year]: #the float code_bins["AZ"][2005][6] exists?
+                if not building_type in code_bins_in_current_year[state][year]:
                     code_bins_in_current_year[state][year][building_type] = dict()
-                    code_bins_in_current_year[state][year][building_type] = stock_object.remaining_floor_space_by_year[year][building_type]
+                    code_bins_in_current_year[state][year][building_type] = \
+                        stock_object.remaining_floor_space_by_year[year][building_type]
                 else:
                     existing = code_bins_in_current_year[state][year][building_type]
                     new_from_current_object = stock_object.remaining_floor_space_by_year[year][building_type]
+                    code_bins_in_current_year[state][year][building_type] = existing + new_from_current_object
     return code_bins_in_current_year
 
 def add_floor_space_to_bin(code_bins_in_current_year, state, year, building_type, floor_space):
     # += is forbidden in loops, so we use an if statement
     if year in code_bins_in_current_year[state]:
         if building_type in code_bins_in_current_year[state][year]:
-            code_bins_in_current_year[state][year][building_type] = code_bins_in_current_year[state][year][building_type] + floor_space
+            code_bins_in_current_year[state][year][building_type] = \
+                code_bins_in_current_year[state][year][building_type] + floor_space
         else:
             code_bins_in_current_year[state][year]
     else:
@@ -91,4 +94,4 @@ construction_history = add_NEMS_building_types_to_construction_history(
 the_eighties = create_building_stock(1980, 1980, construction_history)
 age_building_stock_to_year(the_eighties, 1981)
 code_bins = return_code_bins_in_current_year(the_eighties)
-show_building_codes_in_current_year(code_bins)
+#show_building_codes_in_current_year(code_bins)
