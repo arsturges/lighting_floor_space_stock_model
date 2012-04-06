@@ -38,6 +38,43 @@ def convert_csv_to_dictionary_of_dictionaries(csv_file):
     final_product = dict(zip(states, state_dictionaries))
     return final_product
 
+def import_3_column_data(csv_file):
+    #import the NEMS floor space percentages.
+    #Will be a dict object like this: cendiv_NEMS[cendiv][NEMS_building_type]
+    #this will return the percentage of all floor space in that cendiv
+    #that is comprised of that building type.
+    cendiv_NEMS_csv = list(csv.reader(open(csv_file))) #a list of rows
+    cendiv_NEMS = dict()
+    for row_number in range(1, len(cendiv_NEMS_csv)):
+        cendiv = int(cendiv_NEMS_csv[row_number][0])
+        NEMS_building_type = int(cendiv_NEMS_csv[row_number][1])
+        percentage = float(cendiv_NEMS_csv[row_number][2])
+        if cendiv in cendiv_NEMS:
+            cendiv_NEMS[cendiv][NEMS_building_type] = percentage
+        else:
+            cendiv_NEMS[cendiv] = dict()
+            cendiv_NEMS[cendiv][NEMS_building_type] = percentage
+    return cendiv_NEMS
+
+def add_NEMS_building_types_to_construction_history(
+    construction_history_by_state,
+    states_cendivs,
+    cendiv_NEMS):
+    #the following code takes construction_history_by_state
+    # and adds the NEMS building types to it.
+    construction_history = dict()
+    for state in construction_history_by_state:
+        construction_history[state] = dict()
+        for year in construction_history_by_state[state]:
+            total_state_year_floor_space = float(construction_history_by_state[state][year])
+            construction_history[state][year] = dict()
+            cendiv = int(states_cendivs[state])
+            for NEMS_building_type in [1,2,3,4,5,6,9,10,11,78]: #better to pull this from the csv
+                percentage = cendiv_NEMS[cendiv][NEMS_building_type]
+                floor_space = total_state_year_floor_space * percentage
+                construction_history[state][year][NEMS_building_type] = floor_space
+    return construction_history
+
 def test_the_model():
     #test that aging in separate consecutive periods
     #has same effect as one longer period:
