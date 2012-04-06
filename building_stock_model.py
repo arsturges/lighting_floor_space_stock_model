@@ -50,18 +50,6 @@ def return_code_bins_in_current_year(stock_objects):
                     code_bins_in_current_year[state][year][building_type] = existing + new_from_current_object
     return code_bins_in_current_year
 
-def add_floor_space_to_bin(code_bins_in_current_year, state, year, building_type, floor_space):
-    # += is forbidden in loops, so we use an if statement
-    if year in code_bins_in_current_year[state]:
-        if building_type in code_bins_in_current_year[state][year]:
-            code_bins_in_current_year[state][year][building_type] = \
-                code_bins_in_current_year[state][year][building_type] + floor_space
-        else:
-            code_bins_in_current_year[state][year]
-    else:
-        code_bins_in_current_year[state][year] = floor_space
-    return code_bins_in_current_year[state]
-
 def show_building_codes_in_current_year(code_bins_in_current_year):
     for state in code_bins_in_current_year.keys():
         for year in code_bins_in_current_year[state].keys():
