@@ -2,6 +2,7 @@
 Written for Python 3.2.2
 '''
 
+from csv_functions import *
 from floor_space import *
 from helper_functions import *
 import pprint
