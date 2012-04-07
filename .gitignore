@@ -1,2 +1,4 @@
 *.swp
 *.*~
+sand_box.py
+__pycache__*
