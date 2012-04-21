@@ -1,4 +1,16 @@
 from floor_space import *
+from csv_functions import *
+
+#set up some data objects:
+scenario = 'csv_inputs/state_energy_code_compliance_no_increase.csv'
+code_compliance = convert_csv_to_dictionary_of_dictionaries(scenario)
+
+#this form works because we know it has only 2 columns
+#code_key['13'] == "ASHRAE 2004"
+code_key = dict(csv.reader(open('csv_inputs/state_energy_code_key.csv')))
+
+code = code_key[code_compliance["WA"][1993]]
+print("Code is:", code)
 
 def add_NEMS_building_types_to_construction_history(
     construction_history_by_state,
