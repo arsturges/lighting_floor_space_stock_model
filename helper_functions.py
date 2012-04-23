@@ -144,20 +144,6 @@ def return_code_bins_in_current_year(stock_objects):
                     code_bins_in_current_year[state][year][building_type] = existing + new_from_current_object
     return code_bins_in_current_year
 
-def show_building_codes_in_current_year(code_bins_in_current_year, code_compliance):
-    for state in code_bins_in_current_year.keys():
-        for year in code_bins_in_current_year[state].keys():
-            if year in code_compliance[state]:
-                code = code_key[code_compliance[state][year]]
-            else:
-                code = "none specified"
-            print(
-                "State:", state,
-                "Year:", year,
-                "Square feet:",
-                pprint.pprint(code_bins_in_current_year[state][year]),
-                "Building code:", code)
-
 def print_csv_database(code_bins_in_current_year, code_compliance, floor_space_coverage_by_code):
     with open('results.csv', 'w', newline='') as f:
         writer = csv.writer(f)

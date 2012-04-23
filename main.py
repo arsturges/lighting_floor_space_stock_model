@@ -28,11 +28,9 @@ construction_history = add_NEMS_building_types_to_construction_history(
 floor_space_coverage_by_code = convert_csv_to_dictionary_of_dictionaries(floor_space_coverage_by_code)
 
 #Run the model using convenience methods from helper_functions.py:
-the_eighties = create_building_stock(1975, 2015, construction_history)
-age_building_stock_to_year(the_eighties, 2035)
+the_eighties = create_building_stock(2013, 2015, construction_history)
+age_building_stock_to_year(the_eighties, 2018)
 code_bins = return_code_bins_in_current_year(the_eighties)
-#show_building_codes_in_current_year(code_bins, code_compliance)
-
 print_csv_database(code_bins, code_compliance, floor_space_coverage_by_code)
 
 
