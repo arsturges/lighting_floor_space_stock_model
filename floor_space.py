@@ -16,7 +16,6 @@ import pprint
 import copy
 
 class Floor_Space:
-    verbose = False
     def __init__(self, year_of_construction, total_initial_square_feet, region):
         self.region = region
         self.year_of_construction = year_of_construction
