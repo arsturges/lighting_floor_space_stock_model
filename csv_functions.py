@@ -32,7 +32,7 @@ def convert_csv_to_dictionary_of_dictionaries(csv_file):
         states.append(rows[state][0])
         state_values = [] # a list of values corresponding to available years
         for year in range(1, len(rows[0])): #skip the header
-            state_values.append(rows[state][year]) #put in some int/float/str logic
+            state_values.append(rows[state][year]) #TODO: put in some int/float/str logic
         state_dictionary = dict(zip(years, state_values))
         state_dictionaries.append(state_dictionary)
     final_product = dict(zip(states, state_dictionaries))

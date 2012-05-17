@@ -72,29 +72,5 @@ def return_code_bins_in_current_year(stock_objects):
                     existing = code_bins_in_current_year[state][year][building_type]
                     new_from_current_object = stock_object.remaining_floor_space_by_year[year][building_type]
                     code_bins_in_current_year[state][year][building_type] = existing + new_from_current_object
-    return code_bins_in_current_year
+    return code_bins_in_current_year       
 
-def print_csv_database(code_bins_in_current_year, code_compliance, floor_space_coverage_by_code):
-    with open('results.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['state','year','building_type','code_number','code_title','subspace','floor_space'])
-        for state in code_bins_in_current_year.keys():
-            for year in code_bins_in_current_year[state].keys():
-                if year in code_compliance[state]:
-                    code_number = code_compliance[state][year]
-                    code_title = code_key[code_number]
-                else:
-                    code_number = 0
-                    code_title = "none specified"
-                for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    if int(code_number) in floor_space_coverage_by_code[str(building_type)].keys():
-                        coverage_multiplier = float(floor_space_coverage_by_code[str(building_type)][int(code_number)])
-                    else:
-                        coverage_multiplier = 0
-                    #print(state, year, building_type, code_number, coverage_multiplier)
-                    #print(code_bins_in_current_year[state][year][building_type])
-                    covered_floor_space = code_bins_in_current_year[state][year][building_type] * coverage_multiplier
-                    uncovered_floor_space = code_bins_in_current_year[state][year][building_type] * (1 - coverage_multiplier)
-                    writer.writerow([state,year,building_type,code_number,code_title,'covered:',covered_floor_space])
-                    writer.writerow([state,year,building_type,code_number,code_title,'uncovered:',uncovered_floor_space])
-                    writer.writerow([state,year,building_type,code_number,code_title,'total:',code_bins_in_current_year[state][year][building_type]])
