@@ -20,15 +20,17 @@ def print_csv_database_rows(current_year, code_bins_in_current_year,code_complia
                 else:
                     code_number = 0
                     code_title = "none specified"
+                covered_floor_space = 0
+                uncovered_floor_space = 0
                 for building_type in [1,2,3,4,5,6,9,10,11,78]:
                     if int(code_number) in floor_space_coverage_by_code[str(building_type)].keys():
                         coverage_multiplier = float(floor_space_coverage_by_code[str(building_type)][int(code_number)])
                     else:
                         coverage_multiplier = 0
-                    covered_floor_space = code_bins_in_current_year[state][year][building_type] * coverage_multiplier
-                    uncovered_floor_space = code_bins_in_current_year[state][year][building_type] * (1 - coverage_multiplier)
-                    writer.writerow([current_year,state,year,building_type,code_number,code_title,'covered:',covered_floor_space])
-                    writer.writerow([current_year,state,year,building_type,code_number,code_title,'uncovered:',uncovered_floor_space])
+                    covered_floor_space += code_bins_in_current_year[state][year][building_type] * coverage_multiplier
+                    uncovered_floor_space += code_bins_in_current_year[state][year][building_type] * (1 - coverage_multiplier)
+                writer.writerow([current_year,state,year,building_type,code_number,code_title,'covered:',covered_floor_space])
+                writer.writerow([current_year,state,year,building_type,code_number,code_title,'uncovered:',uncovered_floor_space])
 
 
 # Define the inputs:
