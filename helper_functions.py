@@ -5,6 +5,7 @@ from csv_functions import *
 
 #set up some data objects:
 scenario = 'csv_inputs/state_energy_code_compliance_no_increase.csv'
+#scenario = 'csv_inputs/state_energy_code_compliance_federal_standard_2007_by_2015.csv'
 code_compliance = convert_csv_to_dictionary_of_dictionaries(scenario)
 
 #this form works because we know it has only 2 columns
@@ -30,77 +31,6 @@ def add_NEMS_building_types_to_construction_history(
                 floor_space = total_state_year_floor_space * percentage
                 construction_history[state][year][NEMS_building_type] = floor_space
     return construction_history
-
-def test_the_model():
-    #test that aging in separate consecutive periods
-    #has same effect as one longer period:
-    construction_history = dict(csv.reader(open('construction_history.csv')))
-
-    _1980a = Floor_Space(1980, construction_history['1980'], 'USA')
-    _1980b = Floor_Space(1980, construction_history['1980'], 'USA')
-
-    _1980a.age_n_years(10)
-    _1980b.age_n_years(3)
-    _1980b.age_n_years(1)
-    _1980b.age_n_years(6)
-    _1980a.identify()
-    _1980b.identify()
-
-    print(_1980a.current_year == _1980b.current_year)
-    print(_1980a.remaining_floor_space_by_year[1987] == _1980b.remaining_floor_space_by_year[1987])
-    print(_1980a.stock_age == _1980b.stock_age)
-
-def animate_1975():
-    #animate the year 1975:
-    _1975 = create_building_stock(1975,1975, construction_history)
-    animation_data_by_year = dict()
-    for year in range(1975, 2011):
-        animation_data_by_year[year] = return_code_bins_in_current_year(age_building_stock_to_year(_1975, year))
-
-    #create a csv file to graph this in Excel
-    #want a row of 1975 values from each stock object,
-    #so loop through all the stock objects and grab 1975:
-
-    with open('animation.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        for row_year in range(1975,2011):
-            row = list()
-            for object_year in range(1975,2011):
-                if row_year in animation_data_by_year[object_year]:
-                    row.append(animation_data_by_year[object_year][row_year])
-                else:
-                    row.append(0) #this is so ugly please fix this later
-            writer.writerow(row)
-
-def show_existing_stock():
-    '''Create a dictionary of total existing floor space by year,
-    without respect to renovations or building codes. Just show
-    how much existed during each year from each stock object.
-    This will basically show demolition rate only; renovation
-    will have no effect. This is an old method that doesn't
-    use the new convenience methods 'create_building_stock(); etc.'''
-
-    #Create a list of new stock objects:
-    building_stock_objects = list()
-    for i in range(1975, 1981): #(1975 through 1980)
-        building_stock_objects.append(Floor_Space(i, construction_history[str(i)], 'USA'))
-
-    #create a list of dictionaries to hold each stock object's history
-    histories = list()
-    for i in range(len(building_stock_objects)):
-        histories.append(dict())
-
-    #age each one some number of years, and record total existing floor space at each year:
-    for i in range(len(building_stock_objects)):
-        for j in range(25):
-            start_year = building_stock_objects[i].year_of_construction
-            end_year = building_stock_objects[i].current_year
-            total_space_in_loop_year = 0
-            for k in range(start_year, end_year+1):
-                total_space_in_loop_year += building_stock_objects[i].remaining_floor_space_by_year[k]
-            histories[i][j+start_year] = total_space_in_loop_year
-            building_stock_objects[i].age_n_years(1)
-    pprint.pprint(histories) # graph this output in Excel
 
 def create_building_stock(start_build_year, end_build_year, construction_data):
     #assumes construction_data spans start and end years
@@ -168,4 +98,3 @@ def print_csv_database(code_bins_in_current_year, code_compliance, floor_space_c
                     writer.writerow([state,year,building_type,code_number,code_title,'covered:',covered_floor_space])
                     writer.writerow([state,year,building_type,code_number,code_title,'uncovered:',uncovered_floor_space])
                     writer.writerow([state,year,building_type,code_number,code_title,'total:',code_bins_in_current_year[state][year][building_type]])
-
