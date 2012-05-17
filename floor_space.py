@@ -138,8 +138,17 @@ class Floor_Space:
         a static rate. Assume "floor_space" is a dictionary-of-dictionaries object.'''
         year = self.year_of_construction
         while year < self.current_year:
+            years_since_construction = self.current_year - self.year_of_construction
+            if years_since_construction < 10:
+                rate = 0
+            elif years_since_construction < 30:
+                rate = 0.005
+            elif years_since_construction < 50:
+                rate = 0.01
+            elif years_since_construction < 70:
+                rate = 0.03
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 floor_space_to_be_demolished[year][building_type] = (
-                    0.01 * floor_space_to_be_demolished[year][building_type])
+                    rate * floor_space_to_be_demolished[year][building_type])
             year += 1
         return floor_space_to_be_demolished
