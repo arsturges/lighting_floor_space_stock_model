@@ -139,7 +139,7 @@ class Floor_Space:
         year = self.year_of_construction
         while year < self.current_year:
             years_since_construction = self.current_year - self.year_of_construction
-            if years_since_construction < 10:
+            if (years_since_construction < 10) or (self.current_year < 1979):
                 rate = 0
             elif years_since_construction < 30:
                 rate = 0.005
