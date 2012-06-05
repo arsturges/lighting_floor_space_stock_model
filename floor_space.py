@@ -17,6 +17,8 @@ import copy
 
 class Floor_Space:
     def __init__(self, year_of_construction, total_initial_square_feet, region):
+        # total_initial_square_feet is expected to be a dictionary of NEMS
+        # building types, not just an integer.
         self.region = region
         self.year_of_construction = year_of_construction
         self.current_year = year_of_construction
@@ -59,7 +61,7 @@ class Floor_Space:
             self.remaining_floor_space_by_year
             
             #demolish some portion of it (from each year)
-            floor_space_to_be_demolished = copy.deepcopy(self.remaining_floor_space_by_year) #deep because nested dict
+            floor_space_to_be_demolished = copy.deepcopy(self.remaining_floor_space_by_year)
             demolished = self.demolish(floor_space_to_be_demolished) #dict
             
             #subtract the demolished portion from the
@@ -74,7 +76,7 @@ class Floor_Space:
                 year += 1
             
             #renovate some portion of what's left
-            floor_space_to_be_renovated = copy.deepcopy(self.remaining_floor_space_by_year) #deep because nested dict
+            floor_space_to_be_renovated = copy.deepcopy(self.remaining_floor_space_by_year)
             stock_renovated_in_current_year = self.renovate(floor_space_to_be_renovated) #dict
             
             #subtract the renovated portion from the
@@ -147,6 +149,8 @@ class Floor_Space:
                 rate = 0.01
             elif years_since_construction < 70:
                 rate = 0.03
+            else: # after 1979 and buildings are older than 70, maybe historical
+                rate = 0.04
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 floor_space_to_be_demolished[year][building_type] = (
                     rate * floor_space_to_be_demolished[year][building_type])
