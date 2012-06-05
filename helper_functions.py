@@ -11,14 +11,18 @@ code_compliance = convert_csv_to_dictionary_of_dictionaries(scenario)
 #this form works because we know it has only 2 columns
 #code_key['13'] == "ASHRAE 2004"
 state_energy_code_key = 'csv_inputs/state_energy_code_key.csv'
-code_key = dict(csv.reader(open(state_energy_code_key))) #TODO: make this output int and float instead of str
+code_key = dict(csv.reader(open(state_energy_code_key)))
+#TODO: make this output int and float instead of str
 
 def add_NEMS_building_types_to_construction_history(
     construction_history_by_state,
     states_cendivs,
     cendiv_NEMS):
-    #the following code takes construction_history_by_state
-    # and adds the NEMS building types to it.
+    # the following code takes construction_history_by_state
+    # and breaks each state's floor space into its constituent
+    # NEMS building types as defined in cendiv_NEMS.
+    # Original: construction_history_by_state['CA'] = total for all of CA
+    # Modified: construction_history['CA'][78] = total for just office space in CA
     construction_history = dict()
     for state in construction_history_by_state:
         construction_history[state] = dict()
