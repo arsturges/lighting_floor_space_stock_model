@@ -61,63 +61,20 @@ class Floor_Space:
             self.remaining_floor_space_by_year
             
             #demolish some portion of it (from each year)
-            floor_space_to_be_demolished = copy.deepcopy(self.remaining_floor_space_by_year)
-            demolished = self.demolish(floor_space_to_be_demolished) #dict
-            
-            #subtract the demolished portion from the
-            #remaining_floor_space_by_year dictionary (year by year)
-            #TODO: break this "subtraction" logic into a method
-            year = self.year_of_construction
-            while year < self.current_year:
-                for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    self.remaining_floor_space_by_year[year][building_type] = (
-                        self.remaining_floor_space_by_year[year][building_type] -
-                        demolished[year][building_type])
-                year += 1
+            self.remaining_floor_space_by_year = self.demolish(self.remaining_floor_space_by_year)
             
             #renovate some portion of what's left
-            floor_space_to_be_renovated = copy.deepcopy(self.remaining_floor_space_by_year)
-            stock_renovated_in_current_year = self.renovate(floor_space_to_be_renovated) #dict
-            
-            #subtract the renovated portion from the
-            #remaining_floor_space_by_year dictionary
-            year = self.year_of_construction
-            while year < self.current_year:
-                for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    existing = self.remaining_floor_space_by_year[year][building_type]
-                    renovated = stock_renovated_in_current_year[year][building_type]
-                    self.remaining_floor_space_by_year[year][building_type] = existing - renovated
-                year += 1
-
-            #get the sum of all renovated space from all years
-            total_space_renovated_from_all_bins_in_the_current_year = dict()
-            year = self.year_of_construction
-            while year < self.current_year:
-                for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    if building_type in total_space_renovated_from_all_bins_in_the_current_year:
-                        existing = total_space_renovated_from_all_bins_in_the_current_year[building_type]
-                        new_from_current_year = stock_renovated_in_current_year[year][building_type]
-                        total_space_renovated_from_all_bins_in_the_current_year[building_type] = (
-                            existing + new_from_current_year)
-                    else:
-                        existing = stock_renovated_in_current_year[year][building_type]
-                        total_space_renovated_from_all_bins_in_the_current_year[building_type] = existing
-                year += 1
-            
-            #and add the total renovated space to the current year
-            self.remaining_floor_space_by_year[self.current_year] = (
-                total_space_renovated_from_all_bins_in_the_current_year)
-
-        #print("The", self.year_of_construction, "building stock has been aged by",
-              #n_years, "years; the current year is now", self.current_year)
+            self.remaining_floor_space_by_year = self.renovate(self.remaining_floor_space_by_year)
 
     def renovate(self, floor_space_to_be_renovated):
         '''We can define a renovation rate based on building stock age,
         current year, location, building type, etc. Assume "floor_space"
         is a dictionary object.'''
-        year = self.year_of_construction
-        while year < self.current_year:
-            years_since_last_renovation = self.current_year - year
+        bin_year = self.year_of_construction #start with the first bin
+        floor_space_renovated_into_new_bin_year = dict() #deposit renovated floor space here (by building type)
+        while bin_year < self.current_year:
+            #set the renovation rate:
+            years_since_last_renovation = self.current_year - bin_year
             if years_since_last_renovation < 7:
                 rate = 0
             elif years_since_last_renovation < 15:
@@ -128,18 +85,37 @@ class Floor_Space:
                 rate = 0.07
             else:
                 rate = 0.1
+            
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                floor_space_to_be_renovated[year][building_type] = (
-                    rate * floor_space_to_be_renovated[year][building_type])
-            year += 1
+                # (1 - rate) stays in the current bins:
+                floor_space_to_be_renovated[bin_year][building_type] = (
+                    (1 - rate) * floor_space_to_be_renovated[bin_year][building_type])
+
+                # the rest goes into a new object
+                if not building_type in floor_space_renovated_into_new_bin_year:
+                    floor_space_renovated_into_new_bin_year[building_type] = \
+                        rate * floor_space_to_be_renovated[bin_year][building_type]
+                floor_space_renovated_into_new_bin_year[building_type] += (
+                    rate * floor_space_to_be_renovated[bin_year][building_type])
+            bin_year += 1
+
+        # Move renovated floor space from new object into new bin in  old object:
+        floor_space_to_be_renovated[bin_year] = dict()
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            if not building_type in floor_space_to_be_renovated[bin_year]:
+                floor_space_to_be_renovated[bin_year][building_type] = \
+                    floor_space_renovated_into_new_bin_year[building_type]
+            else:
+                floor_space_to_be_renovated[bin_year][building_type] += \
+                floor_space_renovated_into_new_bin_year[building_type]
         return floor_space_to_be_renovated
 
     def demolish(self, floor_space_to_be_demolished):
         '''we can define a demolition rate based on building stock age,
         current year, location, building tpye, etc. For now, just use
         a static rate. Assume "floor_space" is a dictionary-of-dictionaries object.'''
-        year = self.year_of_construction
-        while year < self.current_year:
+        bin_year = self.year_of_construction #start at first bin
+        while bin_year < self.current_year:
             years_since_construction = self.current_year - self.year_of_construction
             if (years_since_construction < 10) or (self.current_year < 1979):
                 rate = 0
@@ -152,7 +128,7 @@ class Floor_Space:
             else: # after 1979 and buildings are older than 70, maybe historical
                 rate = 0.04
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                floor_space_to_be_demolished[year][building_type] = (
-                    rate * floor_space_to_be_demolished[year][building_type])
-            year += 1
+                floor_space_to_be_demolished[bin_year][building_type] = (
+                    (1 - rate) * floor_space_to_be_demolished[bin_year][building_type])
+            bin_year += 1 #go to the next bin
         return floor_space_to_be_demolished
