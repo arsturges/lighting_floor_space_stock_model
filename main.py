@@ -81,10 +81,18 @@ def main():
         start_year = 1975
         end_year = 1985
 
+##        print("start creating building stock objects")
 ##        _1900_to_2030 = create_building_stock(1900, 2030, construction_history)
+##        print("finished creating stock objects")
+##        print("start aging.")
 ##        age_building_stock_to_year(_1900_to_2030, 2030)
+##        print("finished aging.")
+##        print("assembling code bins.")
 ##        code_bins = return_code_bins_in_current_year(_1900_to_2030)
+##        print("finished assembling code bins.")
+##        print("start printing rows.")
 ##        print_csv_database_rows(2030, code_bins, code_compliance, floor_space_coverage_by_code)
+##        print("finished printing rows. Done.")
 
         for snapshot_year in range(start_year, end_year + 1):
             print("snapshot_year is:", snapshot_year)
