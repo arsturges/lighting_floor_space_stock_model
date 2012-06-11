@@ -10,9 +10,18 @@ from floor_space import *
 from helper_functions import *
 import pprint
 import csv
-#import cProfile
+import cProfile
 
 def main():
+
+    def print_single_floor_space_object(floor_space_object):
+        current_year = floor_space_object.current_year
+        state = floor_space_object.region
+        for bin_year in floor_space_object.remaining_floor_space_by_year.keys():
+            for building_type in [1,2,3,4,5,6,9,10,11,78]:
+                total_floor_space = \
+                    floor_space_object.remaining_floor_space_by_year[bin_year][building_type]                
+                writer.writerow([current_year,state,bin_year,building_type,"NA","NA","NA",total_floor_space])
 
     def print_csv_database_rows(
         current_year,
@@ -72,15 +81,30 @@ def main():
         start_year = 1975
         end_year = 1985
 
+##        _1900_to_2030 = create_building_stock(1900, 2030, construction_history)
+##        age_building_stock_to_year(_1900_to_2030, 2030)
+##        code_bins = return_code_bins_in_current_year(_1900_to_2030)
+##        print_csv_database_rows(2030, code_bins, code_compliance, floor_space_coverage_by_code)
+
         for snapshot_year in range(start_year, end_year + 1):
             print("snapshot_year is:", snapshot_year)
+            start_time_stamp = datetime.now()
             snapshot = create_building_stock(start_year, snapshot_year, construction_history)
             age_building_stock_to_year(snapshot, snapshot_year)
             code_bins = return_code_bins_in_current_year(snapshot)
             print_csv_database_rows(snapshot_year, code_bins, code_compliance, floor_space_coverage_by_code)
+            end_time_stamp = datetime.now()
+            print("Duration between years:", end_time_stamp - start_time_stamp)
+
+
+##        _1900 = Floor_Space(1900, construction_history['CA'][1900], 'CA')
+##        pprint.pprint(_1900.remaining_floor_space_by_year)
+##        _1900.age_n_years(78)
+##        print_single_floor_space_object(_1900)
 
 main()
 #cProfile.run('main()')
+
 
 end_time = datetime.now()
 print("Duration:", end_time - start_time)
