@@ -85,22 +85,23 @@ class Floor_Space:
                 rate = 0.07
             else:
                 rate = 0.1
-            
+
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
+                not_renovated = (1 - rate) * floor_space_to_be_renovated[bin_year][building_type]
+                renovated = rate * floor_space_to_be_renovated[bin_year][building_type]
+
                 # (1 - rate) stays in the current bins:
-                floor_space_to_be_renovated[bin_year][building_type] = (
-                    (1 - rate) * floor_space_to_be_renovated[bin_year][building_type])
+                floor_space_to_be_renovated[bin_year][building_type] = not_renovated
 
                 # the rest goes into a new object
                 if not building_type in floor_space_renovated_into_new_bin_year:
-                    floor_space_renovated_into_new_bin_year[building_type] = \
-                        rate * floor_space_to_be_renovated[bin_year][building_type]
-                floor_space_renovated_into_new_bin_year[building_type] += (
-                    rate * floor_space_to_be_renovated[bin_year][building_type])
+                    floor_space_renovated_into_new_bin_year[building_type] = renovated
+                else:
+                    floor_space_renovated_into_new_bin_year[building_type] += renovated
             bin_year += 1
 
         # Move renovated floor space from new object into new bin in  old object:
-        floor_space_to_be_renovated[bin_year] = dict()
+        floor_space_to_be_renovated[bin_year] = dict() #create the new bin_year
         for building_type in [1,2,3,4,5,6,9,10,11,78]:
             if not building_type in floor_space_to_be_renovated[bin_year]:
                 floor_space_to_be_renovated[bin_year][building_type] = \
@@ -127,6 +128,7 @@ class Floor_Space:
                 rate = 0.03
             else: # after 1979 and buildings are older than 70, maybe historical
                 rate = 0.04
+
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 floor_space_to_be_demolished[bin_year][building_type] = (
                     (1 - rate) * floor_space_to_be_demolished[bin_year][building_type])
