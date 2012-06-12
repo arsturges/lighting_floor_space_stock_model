@@ -52,28 +52,28 @@ def age_building_stock_to_year(building_stock_objects, year):
         building_stock_objects[i].age_n_years(year - start_year)
     return building_stock_objects
 
-def return_code_bins_in_current_year(stock_objects):
+def sum_bin_years(stock_objects):
     #am I incorrectly assuming all objects will have same current year?
-    #show a complete picture of all existing floor space bins
-    #by state, year, and building type, as it exists in the current_year.
-    #Reference it like this: code_bins_in_current_year["ID"][1992][5]
-    code_bins_in_current_year = dict()
+    #Show a complete picture of all existing floor space bins by state, year,
+    #and building type, as it exists in the 'current_year'.
+    #bin_years_sum["ID"][1992][5]
+    bin_years_sum = dict()
     for stock_object in stock_objects:
         state = stock_object.region
         start_year = stock_object.year_of_construction
         end_year = stock_object.current_year
-        if not state in code_bins_in_current_year:
-            code_bins_in_current_year[state] = dict()
+        if not state in bin_years_sum:
+            bin_years_sum[state] = dict()
         for year in range(start_year,end_year+1):
-            if not year in code_bins_in_current_year[state]:
-                code_bins_in_current_year[state][year] = dict()
+            if not year in bin_years_sum[state]:
+                bin_years_sum[state][year] = dict()
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                if not building_type in code_bins_in_current_year[state][year]:
-                    code_bins_in_current_year[state][year][building_type] = dict()
-                    code_bins_in_current_year[state][year][building_type] = \
+                if not building_type in bin_years_sum[state][year]:
+                    bin_years_sum[state][year][building_type] = dict()
+                    bin_years_sum[state][year][building_type] = \
                         stock_object.remaining_floor_space_by_year[year][building_type]
                 else:
-                    existing = code_bins_in_current_year[state][year][building_type]
+                    existing = bin_years_sum[state][year][building_type]
                     new_from_current_object = stock_object.remaining_floor_space_by_year[year][building_type]
-                    code_bins_in_current_year[state][year][building_type] = existing + new_from_current_object
-    return code_bins_in_current_year
+                    bin_years_sum[state][year][building_type] = existing + new_from_current_object
+    return bin_years_sum

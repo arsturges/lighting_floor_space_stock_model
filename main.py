@@ -25,11 +25,11 @@ def main():
 
     def print_csv_database_rows(
         current_year,
-        code_bins_in_current_year,
+        bin_years_sum,
         code_compliance,
         floor_space_coverage_by_code):
-        for state in code_bins_in_current_year.keys():
-                for year in code_bins_in_current_year[state].keys():
+        for state in bin_years_sum.keys():
+                for year in bin_years_sum[state].keys():
                     if year in code_compliance[state]:
                         code_number = code_compliance[state][year]
                         code_title = code_key[code_number]
@@ -43,8 +43,8 @@ def main():
                             coverage_multiplier = float(floor_space_coverage_by_code[str(building_type)][int(code_number)])
                         else:
                             coverage_multiplier = 0
-                        covered_floor_space += code_bins_in_current_year[state][year][building_type] * coverage_multiplier
-                        uncovered_floor_space += code_bins_in_current_year[state][year][building_type] * (1 - coverage_multiplier)
+                        covered_floor_space += bin_years_sum[state][year][building_type] * coverage_multiplier
+                        uncovered_floor_space += bin_years_sum[state][year][building_type] * (1 - coverage_multiplier)
                     writer.writerow([current_year,state,year,building_type,code_number,code_title,'covered:',covered_floor_space])
                     writer.writerow([current_year,state,year,building_type,code_number,code_title,'uncovered:',uncovered_floor_space])
 
@@ -88,7 +88,7 @@ def main():
 ##        age_building_stock_to_year(_1900_to_2030, 2030)
 ##        print("finished aging.")
 ##        print("assembling code bins.")
-##        code_bins = return_code_bins_in_current_year(_1900_to_2030)
+##        code_bins = bin_years_sum(_1900_to_2030)
 ##        print("finished assembling code bins.")
 ##        print("start printing rows.")
 ##        print_csv_database_rows(2030, code_bins, code_compliance, floor_space_coverage_by_code)
@@ -99,7 +99,7 @@ def main():
             start_time_stamp = datetime.now()
             snapshot = create_building_stock(start_year, snapshot_year, construction_history)
             age_building_stock_to_year(snapshot, snapshot_year)
-            code_bins = return_code_bins_in_current_year(snapshot)
+            code_bins = sum_bin_years(snapshot)
             print_csv_database_rows(snapshot_year, code_bins, code_compliance, floor_space_coverage_by_code)
             end_time_stamp = datetime.now()
             print("Duration between years:", end_time_stamp - start_time_stamp)
