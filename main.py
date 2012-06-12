@@ -6,7 +6,7 @@ from datetime import datetime
 start_time = datetime.now()
 
 from csv_functions import *
-from floor_space import *
+from floor_space import FloorSpace
 from helper_functions import *
 import pprint
 import csv
@@ -105,7 +105,7 @@ def main():
             print("Duration between years:", end_time_stamp - start_time_stamp)
 
 
-##        _1900 = Floor_Space(1900, construction_history['CA'][1900], 'CA')
+##        _1900 = FloorSpace(1900, construction_history['CA'][1900], 'CA')
 ##        pprint.pprint(_1900.remaining_floor_space_by_year)
 ##        _1900.age_n_years(78)
 ##        print_single_floor_space_object(_1900)

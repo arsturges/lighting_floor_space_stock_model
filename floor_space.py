@@ -15,7 +15,7 @@ about their state at any point in time.'''
 import pprint
 import copy
 
-class Floor_Space:
+class FloorSpace:
     def __init__(self, year_of_construction, total_initial_square_feet, region):
         # total_initial_square_feet is expected to be a dictionary of NEMS
         # building types, not just an integer.
