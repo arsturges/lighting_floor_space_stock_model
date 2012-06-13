@@ -118,6 +118,7 @@ class FloorSpace:
         bin_year = self.year_of_construction #start at first bin
         while bin_year < self.current_year:
             years_since_construction = self.current_year - self.year_of_construction
+            #is there a way to remove the if clauses?
             if (years_since_construction < 10) or (self.current_year < 1979):
                 rate = 0
             elif years_since_construction < 30:

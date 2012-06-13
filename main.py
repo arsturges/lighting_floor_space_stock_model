@@ -78,22 +78,27 @@ def main():
                          'subspace',
                          'floor_space'])
 
-        start_year = 1975
-        end_year = 1985
+##    # Create a single FloorSpace object, age it, and print it out:
+##        _1900 = FloorSpace(1900, construction_history['CA'][1900], 'CA')
+##        pprint.pprint(_1900.remaining_floor_space_by_year)
+##        _1900.age_n_years(78)
+##        print_single_floor_space_object(_1900)
 
+
+    # Create a single snapshot consisting of a list of FloorSpace objects,
+    # each aged to the same point in time:
 ##        print("start creating building stock objects")
 ##        _1900_to_2030 = create_building_stock(1900, 2030, construction_history)
-##        print("finished creating stock objects")
 ##        print("start aging.")
 ##        age_building_stock_to_year(_1900_to_2030, 2030)
-##        print("finished aging.")
 ##        print("assembling code bins.")
-##        code_bins = bin_years_sum(_1900_to_2030)
-##        print("finished assembling code bins.")
+##        code_bins = sum_bin_years(_1900_to_2030)
 ##        print("start printing rows.")
 ##        print_csv_database_rows(2030, code_bins, code_compliance, floor_space_coverage_by_code)
-##        print("finished printing rows. Done.")
 
+##    # Create a range of snapshots
+        start_year = 1975
+        end_year = 1985
         for snapshot_year in range(start_year, end_year + 1):
             print("snapshot_year is:", snapshot_year)
             start_time_stamp = datetime.now()
@@ -103,12 +108,6 @@ def main():
             print_csv_database_rows(snapshot_year, code_bins, code_compliance, floor_space_coverage_by_code)
             end_time_stamp = datetime.now()
             print("Duration between years:", end_time_stamp - start_time_stamp)
-
-
-##        _1900 = FloorSpace(1900, construction_history['CA'][1900], 'CA')
-##        pprint.pprint(_1900.remaining_floor_space_by_year)
-##        _1900.age_n_years(78)
-##        print_single_floor_space_object(_1900)
 
 main()
 #cProfile.run('main()')
