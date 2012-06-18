@@ -41,6 +41,32 @@ class FloorSpace:
             "has been shifted, according to the following schedule:")
         pprint.pprint(self.remaining_floor_space_by_year)
 
+    def choose_renovation_rate(self, years_since_last_renovation):
+        if years_since_last_renovation < 7:
+            rate = 0
+        elif years_since_last_renovation < 15:
+            rate = 0.01
+        elif years_since_last_renovation < 25:
+            rate = 0.05
+        elif years_since_last_renovation < 50:
+            rate = 0.07
+        else:
+            rate = 0.1
+        return rate
+
+    def choose_demolition_rate(self, years_since_construction):
+        if (years_since_construction < 10) or (self.current_year < 1979):
+            rate = 0
+        elif years_since_construction < 30:
+            rate = 0.005
+        elif years_since_construction < 50:
+            rate = 0.01
+        elif years_since_construction < 70:
+            rate = 0.03
+        else: # after 1979 and buildings are older than 70, maybe historical
+            rate = 0.04
+        return rate
+
     def age_n_years(self, n_years):
         '''
         During every year that a particular stock object gets
@@ -75,16 +101,8 @@ class FloorSpace:
         while bin_year < self.current_year:
             #set the renovation rate:
             years_since_last_renovation = self.current_year - bin_year
-            if years_since_last_renovation < 7:
-                rate = 0
-            elif years_since_last_renovation < 15:
-                rate = 0.01
-            elif years_since_last_renovation < 25:
-                rate = 0.05
-            elif years_since_last_renovation < 50:
-                rate = 0.07
-            else:
-                rate = 0.1
+
+            rate = self.choose_renovation_rate(years_since_last_renovation)
 
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 not_renovated = (1 - rate) * floor_space_to_be_renovated[bin_year][building_type]
@@ -118,17 +136,7 @@ class FloorSpace:
         bin_year = self.year_of_construction #start at first bin
         while bin_year < self.current_year:
             years_since_construction = self.current_year - self.year_of_construction
-            #is there a way to remove the if clauses?
-            if (years_since_construction < 10) or (self.current_year < 1979):
-                rate = 0
-            elif years_since_construction < 30:
-                rate = 0.005
-            elif years_since_construction < 50:
-                rate = 0.01
-            elif years_since_construction < 70:
-                rate = 0.03
-            else: # after 1979 and buildings are older than 70, maybe historical
-                rate = 0.04
+            rate = self.choose_demolition_rate(years_since_construction)
 
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 floor_space_to_be_demolished[bin_year][building_type] = (
