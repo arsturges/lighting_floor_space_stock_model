@@ -67,6 +67,31 @@ class FloorSpace:
             rate = 0.04
         return rate
 
+    def distribute_to_new_bin_year(self, renovated_floor_space, unrenovated_floor_space, bin_year):
+        unrenovated_floor_space[bin_year] = dict() #create the new bin_year
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            if not building_type in unrenovated_floor_space[bin_year]:
+                unrenovated_floor_space[bin_year][building_type] = renovated_floor_space[building_type]
+            else:
+                unrenovated_floor_space[bin_year][building_type] += renovated_floor_space[building_type]
+        floor_space_after_renovation = unrenovated_floor_space
+        return floor_space_after_renovation
+
+    def scrape_off_renovated_floor_space(self, floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year, bin_year, rate):
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            not_renovated = (1 - rate) * floor_space_to_be_renovated[bin_year][building_type]
+            renovated = rate * floor_space_to_be_renovated[bin_year][building_type]
+
+            # (1 - rate) stays in the current bins:
+            floor_space_to_be_renovated[bin_year][building_type] = not_renovated
+
+            # the rest goes into a new object
+            if not building_type in floor_space_renovated_into_new_bin_year:
+                floor_space_renovated_into_new_bin_year[building_type] = renovated
+            else:
+                floor_space_renovated_into_new_bin_year[building_type] += renovated
+        return (floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year)
+
     def age_n_years(self, n_years):
         '''
         During every year that a particular stock object gets
@@ -96,38 +121,18 @@ class FloorSpace:
         '''We can define a renovation rate based on building stock age,
         current year, location, building type, etc. Assume "floor_space"
         is a dictionary object.'''
-        bin_year = self.year_of_construction #start with the first bin
-        floor_space_renovated_into_new_bin_year = dict() #deposit renovated floor space here (by building type)
+        bin_year = self.year_of_construction # Start with the first bin
+        floor_space_renovated_into_new_bin_year = dict() # Temporary deposit for renovated floor space (by building type)
         while bin_year < self.current_year:
-            #set the renovation rate:
             years_since_last_renovation = self.current_year - bin_year
-
             rate = self.choose_renovation_rate(years_since_last_renovation)
-
-            for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                not_renovated = (1 - rate) * floor_space_to_be_renovated[bin_year][building_type]
-                renovated = rate * floor_space_to_be_renovated[bin_year][building_type]
-
-                # (1 - rate) stays in the current bins:
-                floor_space_to_be_renovated[bin_year][building_type] = not_renovated
-
-                # the rest goes into a new object
-                if not building_type in floor_space_renovated_into_new_bin_year:
-                    floor_space_renovated_into_new_bin_year[building_type] = renovated
-                else:
-                    floor_space_renovated_into_new_bin_year[building_type] += renovated
+            floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year = self.scrape_off_renovated_floor_space(floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year, bin_year, rate)
             bin_year += 1
 
-        # Move renovated floor space from new object into new bin in  old object:
-        floor_space_to_be_renovated[bin_year] = dict() #create the new bin_year
-        for building_type in [1,2,3,4,5,6,9,10,11,78]:
-            if not building_type in floor_space_to_be_renovated[bin_year]:
-                floor_space_to_be_renovated[bin_year][building_type] = \
-                    floor_space_renovated_into_new_bin_year[building_type]
-            else:
-                floor_space_to_be_renovated[bin_year][building_type] += \
-                floor_space_renovated_into_new_bin_year[building_type]
-        return floor_space_to_be_renovated
+        # Move renovated floor space from new object into new bin in old object:
+        floor_space_after_renovation = self.distribute_to_new_bin_year(floor_space_renovated_into_new_bin_year, floor_space_to_be_renovated, bin_year)
+
+        return floor_space_after_renovation
 
     def demolish(self, floor_space_to_be_demolished):
         '''we can define a demolition rate based on building stock age,
