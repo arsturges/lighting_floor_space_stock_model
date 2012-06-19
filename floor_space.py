@@ -77,20 +77,20 @@ class FloorSpace:
         floor_space_after_renovation = unrenovated_floor_space
         return floor_space_after_renovation
 
-    def scrape_off_renovated_floor_space(self, floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year, bin_year, rate):
+    def scrape_off_renovated_floor_space(self, floor_space, temp_floor_space_holder, bin_year, rate):
         for building_type in [1,2,3,4,5,6,9,10,11,78]:
-            not_renovated = (1 - rate) * floor_space_to_be_renovated[bin_year][building_type]
-            renovated = rate * floor_space_to_be_renovated[bin_year][building_type]
+            not_renovated = floor_space[bin_year][building_type] * (1 - rate)
+            renovated =     floor_space[bin_year][building_type] * rate
 
             # (1 - rate) stays in the current bins:
-            floor_space_to_be_renovated[bin_year][building_type] = not_renovated
+            floor_space[bin_year][building_type] = not_renovated
 
-            # the rest goes into a new object
-            if not building_type in floor_space_renovated_into_new_bin_year:
-                floor_space_renovated_into_new_bin_year[building_type] = renovated
+            # The rest goes into a temporary object
+            if not building_type in temp_floor_space_holder:
+                temp_floor_space_holder[building_type] = renovated
             else:
-                floor_space_renovated_into_new_bin_year[building_type] += renovated
-        return (floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year)
+                temp_floor_space_holder[building_type] += renovated
+        return (floor_space, temp_floor_space_holder)
 
     def age_n_years(self, n_years):
         '''
@@ -126,7 +126,10 @@ class FloorSpace:
         while bin_year < self.current_year:
             years_since_last_renovation = self.current_year - bin_year
             rate = self.choose_renovation_rate(years_since_last_renovation)
-            floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year = self.scrape_off_renovated_floor_space(floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year, bin_year, rate)
+            floor_space_to_be_renovated, floor_space_renovated_into_new_bin_year = \
+                self.scrape_off_renovated_floor_space(floor_space_to_be_renovated,
+                                                      floor_space_renovated_into_new_bin_year,
+                                                      bin_year, rate)
             bin_year += 1
 
         # Move renovated floor space from new object into new bin in old object:
