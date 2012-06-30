@@ -14,10 +14,10 @@ class LoadInputs():
         # TODO: make this output int and float instead of str
         self.states_cendivs  = dict(csv.reader(open(state_cendiv_correspondance))) # states_cendivs['AZ'] == '8'.
         code_key        = dict(csv.reader(open(state_energy_code_key))) #code_key['13'] == "ASHRAE 2004"
-        self.construction_history_by_state       = self.convert_csv_to_dictionary_of_dictionaries(starts)
-        self.code_compliance                     = self.convert_csv_to_dictionary_of_dictionaries(scenario)
+        self.construction_history_by_state  = self.convert_csv_to_dictionary_of_dictionaries(starts)
+        self.code_compliance                = self.convert_csv_to_dictionary_of_dictionaries(scenario)
         self.floor_space_coverage_by_code   = self.convert_csv_to_dictionary_of_dictionaries(floor_space_coverage_by_code)
-        self.cendiv_NEMS                         = self.import_3_column_data(cendiv_NEMS_percentages)
+        self.cendiv_NEMS                    = self.import_3_column_data(cendiv_NEMS_percentages)
         self.construction_history           = self.add_NEMS_building_types_to_construction_history(
             self.construction_history_by_state,
             self.states_cendivs,
