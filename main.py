@@ -71,29 +71,29 @@ def main():
 
     # Create a single snapshot consisting of a list of FloorSpace objects,
     # each aged to the same point in time:
-        _1900_to_1903 = create_building_stock(1900, 1903, copy.deepcopy(inputs.construction_history))
-        age_building_stock_to_year(_1900_to_1903, 1903, inputs)
-        code_bins = sum_bin_years(_1900_to_1903)
-        print_csv_database_rows(1903, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
-
-        _1900_to_1904 = create_building_stock(1900, 1904, copy.deepcopy(inputs.construction_history))
-        age_building_stock_to_year(_1900_to_1904, 1904, inputs)
-        code_bins = sum_bin_years(_1900_to_1904)
-        print_csv_database_rows(1904, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
+##        _1900_to_1903 = create_building_stock(1900, 1903, copy.deepcopy(inputs.construction_history))
+##        age_building_stock_to_year(_1900_to_1903, 1903, inputs)
+##        code_bins = sum_bin_years(_1900_to_1903)
+##        print_csv_database_rows(1903, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
+##
+##        _1900_to_1904 = create_building_stock(1900, 1904, copy.deepcopy(inputs.construction_history))
+##        age_building_stock_to_year(_1900_to_1904, 1904, inputs)
+##        code_bins = sum_bin_years(_1900_to_1904)
+##        print_csv_database_rows(1904, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
 
     # Create a range of snapshots
-##        start_year = 1900
-##        end_year = 1910
-##        for snapshot_year in range(start_year, end_year + 1):
-##            start_time_stamp = datetime.now()
-##            print("Creating a snapshot object spanning", start_year,"--",snapshot_year)
-##            snapshot = create_building_stock(start_year, snapshot_year, copy.deepcopy(inputs.construction_history))
-##            print("Now aging it to", snapshot_year)
-##            age_building_stock_to_year(snapshot, snapshot_year)
-##            code_bins = sum_bin_years(snapshot)
-##            print_csv_database_rows(snapshot_year, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
-##            end_time_stamp = datetime.now()
-##            print("Duration between years:", end_time_stamp - start_time_stamp)
+        start_year = 1900
+        end_year = 2030
+        for snapshot_year in range(start_year, end_year + 1):
+            start_time_stamp = datetime.now()
+            print("Creating a snapshot object spanning", start_year,"--",snapshot_year)
+            snapshot = create_building_stock(start_year, snapshot_year, copy.deepcopy(inputs.construction_history))
+            print("Now aging it to", snapshot_year)
+            age_building_stock_to_year(snapshot, snapshot_year)
+            code_bins = sum_bin_years(snapshot)
+            print_csv_database_rows(snapshot_year, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
+            end_time_stamp = datetime.now()
+            print("Duration between years:", end_time_stamp - start_time_stamp)
 
 main()
 #cProfile.run('main()')

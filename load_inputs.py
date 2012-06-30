@@ -2,9 +2,9 @@ import csv
 class LoadInputs():
     def __init__(self):
         # Get raw CSV data:
-        starts = 'csv_inputs/construction_history_by_state_CA_ONLY.csv'
+        starts = 'csv_inputs/construction_history_by_state.csv'
         state_cendiv_correspondance = 'csv_inputs/states_cendivs.csv'
-        cendiv_NEMS_percentages = 'csv_inputs/cendivs_NEMS_fake_percentages.csv'
+        cendiv_NEMS_percentages = 'csv_inputs/cendivs_NEMS_percentages.csv'
         floor_space_coverage_by_code = 'csv_inputs/floor_space_under_building_lighting_automatic_shutoff.csv'
         scenario = 'csv_inputs/state_energy_code_compliance_no_increase.csv'
         #scenario = 'csv_inputs/state_energy_code_compliance_federal_standard_2007_by_2015.csv'
@@ -12,8 +12,8 @@ class LoadInputs():
 
         # Intermediate steps to convert the inputs to usable arrays and dictionaries
         # TODO: make this output int and float instead of str
-        self.states_cendivs  = dict(csv.reader(open(state_cendiv_correspondance))) # states_cendivs['AZ'] == '8'.
-        code_key        = dict(csv.reader(open(state_energy_code_key))) #code_key['13'] == "ASHRAE 2004"
+        self.states_cendivs     = dict(csv.reader(open(state_cendiv_correspondance))) # states_cendivs['AZ'] == '8'.
+        code_key                = dict(csv.reader(open(state_energy_code_key))) #code_key['13'] == "ASHRAE 2004"
         self.construction_history_by_state  = self.convert_csv_to_dictionary_of_dictionaries(starts)
         self.code_compliance                = self.convert_csv_to_dictionary_of_dictionaries(scenario)
         self.floor_space_coverage_by_code   = self.convert_csv_to_dictionary_of_dictionaries(floor_space_coverage_by_code)

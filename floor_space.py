@@ -31,7 +31,7 @@ class FloorSpace:
 
     def choose_renovation_rate(self, years_since_last_renovation):
         if years_since_last_renovation < 7:
-            rate = 0.01
+            rate = 0
         elif years_since_last_renovation < 15:
             rate = 0.01
         elif years_since_last_renovation < 25:
@@ -53,11 +53,10 @@ class FloorSpace:
             rate = 0.03
         else: # after 1979 and buildings are older than 70, maybe historical
             rate = 0.04
-        rate = 0 ############################
         return rate
 
     def distribute_to_new_bin_year(self, renovated_floor_space, unrenovated_floor_space, bin_year):
-        unrenovated_floor_space[bin_year] = dict() #create the new bin_year
+        unrenovated_floor_space[bin_year] = dict() # Create the new bin_year
         for building_type in [1,2,3,4,5,6,9,10,11,78]:
             if not building_type in unrenovated_floor_space[bin_year]:
                 unrenovated_floor_space[bin_year][building_type] = renovated_floor_space[building_type]
