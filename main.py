@@ -87,7 +87,7 @@ def main():
 ##        for snapshot_year in range(start_year, end_year + 1):
 ##            start_time_stamp = datetime.now()
 ##            print("Creating a snapshot object spanning", start_year,"--",snapshot_year)
-##            snapshot = create_building_stock(start_year, snapshot_year, inputs.construction_history)
+##            snapshot = create_building_stock(start_year, snapshot_year, copy.deepcopy(inputs.construction_history))
 ##            print("Now aging it to", snapshot_year)
 ##            age_building_stock_to_year(snapshot, snapshot_year)
 ##            code_bins = sum_bin_years(snapshot)
