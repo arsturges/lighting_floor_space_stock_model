@@ -1,7 +1,7 @@
 import csv
 class LoadInputs():
     def __init__(self):
-        # Get raw CSV data:
+        # Define to paths to inputs:
         starts = 'csv_inputs/construction_history_by_state.csv'
         state_cendiv_correspondance = 'csv_inputs/states_cendivs.csv'
         cendiv_NEMS_percentages = 'csv_inputs/cendivs_NEMS_percentages.csv'
@@ -10,10 +10,13 @@ class LoadInputs():
         #scenario = 'csv_inputs/state_energy_code_compliance_federal_standard_2007_by_2015.csv'
         state_energy_code_key = 'csv_inputs/state_energy_code_key.csv'
 
-        # Intermediate steps to convert the inputs to usable arrays and dictionaries
-        # TODO: make this output int and float instead of str
-        self.states_cendivs     = dict(csv.reader(open(state_cendiv_correspondance))) # states_cendivs['AZ'] == '8'.
-        code_key                = dict(csv.reader(open(state_energy_code_key))) #code_key['13'] == "ASHRAE 2004"
+        # Create some csv.reader objects:
+        code_key_reader         = csv.reader(open(state_energy_code_key))
+        states_cendivs_reader   = csv.reader(open(state_cendiv_correspondance))
+
+        # Parse paths and reader objects into usable dictionaries:
+        self.code_key                       = self.convert_csv_to_dictionary_without_header(code_key_reader)
+        self.states_cendivs                 = self.convert_csv_to_dictionary_without_header(states_cendivs_reader)
         self.construction_history_by_state  = self.convert_csv_to_dictionary_of_dictionaries(starts)
         self.code_compliance                = self.convert_csv_to_dictionary_of_dictionaries(scenario)
         self.floor_space_coverage_by_code   = self.convert_csv_to_dictionary_of_dictionaries(floor_space_coverage_by_code)
@@ -23,48 +26,73 @@ class LoadInputs():
             self.states_cendivs,
             self.cendiv_NEMS)
 
-    def convert_csv_to_dictionary_of_dictionaries(self, csv_file):
-        '''We want a function that will import a csv file that
-        is known to be in the following format: column 1 is a
-        list of states, and row 1 is a list of years. There should
-        be nothing (of value) in cell(0,0). The function will import this
-        file, and create a dictionary that can be accessed as
-        follows: new_dictionary['state'][year]
+    def convert_csv_to_dictionary_without_header(self, reader_object):
+        dictionary = dict()
+        for row_number, row in enumerate(reader_object):
+            if row_number == 0: continue # Skip header
+            key = self.return_in_native_format(row[0])
+            value = row[1]
+            dictionary[key] = value
+        return dictionary
 
-        In other words, we want a dictionary of dictionaries; the first key
-        will be the state abbreviation, and the second key
-        will be the year, so we can access it like this:
-        dictionary_namy['MA'][1986]
-        It will return the value of whatever was in the
-        csv file for that year/state.
+    def convert_csv_to_dictionary_of_dictionaries(self, csv_file):
+        '''We want a function that will import a csv file that is known to be
+        in the following format: column 1 is a list of "primary keys" (e.g.
+        state), and row 1 is a list of "secondary keys" (e.g. year), and their
+        intersection is the value we want to reference. Basically, a common data
+        table. There should be nothing (of value) in cell(0,0). The function
+        will import this file, and create a dictionary that can be accessed as
+        follows: new_dictionary['primary_key']['secondary_key'] = value.
+
+        In other words, we want a dictionary of dictionaries; access it like
+        this: dictionary_namy['MA'][1986]
+        It returns the value of what was in the csv file for that year/state.
         '''
 
         reader = csv.reader(open(csv_file, newline='')) # A 'reader' object
-        rows = list(reader)
-        # A 'list' object; the number of rows is the same as rows in the csv file,
-        # probably the 51 states (incl. DC) and a header.
+        reader_rows = list(reader)
+        # A list object; the number of rows is the same as rows in the csv file.
         
-        years=list()
-        for year in range(1, len(rows[0])): # We assume years in the header; we skip 0, which is cell(0,0)
-            years.append(int(rows[0][year]))
+        secondary_keys = list()
+        # We assume secondary_keys (e.g. years) in the header; we skip 0, which is cell(0,0)
+        for secondary_key in range(1, len(reader_rows[0])):
+            secondary_keys.append(int(reader_rows[0][secondary_key])) # Get rid of this int call
 
-        states=list()
-        state_dictionaries = list() # A list of state dictionaries
-        for state in range(1, len(rows)): # Skip the header
-            states.append(rows[state][0])
-            state_values = [] # A list of values corresponding to available years
-            for year in range(1, len(rows[0])): # Skip the header
-                state_values.append(rows[state][year]) # TODO: put in some int/float/str logic
-            state_dictionary = dict(zip(years, state_values))
-            state_dictionaries.append(state_dictionary)
-        final_product = dict(zip(states, state_dictionaries))
-        return final_product
+        primary_keys = list()
+        primary_key_dictionaries = list() # A list of primary key dictionaries (one level deep only)
+        for primary_key in range(1, len(reader_rows)): # Skip the header
+            key_name = self.return_in_native_format(reader_rows[primary_key][0])
+            primary_keys.append(key_name)
+            primary_key_values = [] # A list of values corresponding to available years
+            for secondary_key in range(1, len(reader_rows[0])): # Skip the header
+                value_to_store = self.return_in_native_format(reader_rows[primary_key][secondary_key])
+                primary_key_values.append(value_to_store)
+            primary_key_dictionary = dict(zip(secondary_keys, primary_key_values))
+            primary_key_dictionaries.append(primary_key_dictionary)
+        dictionary_of_dictionaries = dict(zip(primary_keys, primary_key_dictionaries))
+        return dictionary_of_dictionaries
+
+    def return_in_native_format(self, string_object):
+        '''This is a result of my csv inputs all coming in as strings. Maybe
+        there's a way to parse them in their native formats to begin with,
+        instead of dealing with it here.
+
+        We want to get integers back to being integers, floats back to floats,
+        leave strings as strings, etc. And be careful not to convert floats to
+        integers. Right now this does little of that, but remains as a framework
+        for future implementation.'''
+
+        try:
+            string_object_as_new_type = int(string_object) #Try for integer...
+        except:
+            string_object_as_new_type = string_object # ...otherwise take it as-is.
+        return string_object_as_new_type
 
     def import_3_column_data(self, csv_file):
-        # Import the NEMS floor space percentages.
-        # Will be a dict object like this: cendiv_NEMS[cendiv][NEMS_building_type]
-        # This will return the percentage of all floor space in that cendiv
-        # that is comprised of that building type.
+        ''' Import the NEMS floor space percentages. Will be a dict object like
+        this: cendiv_NEMS[cendiv][NEMS_building_type]. This will return the
+        percentage of all floor space in that cendiv that is comprised of that
+        building type.'''
         cendiv_NEMS_csv = list(csv.reader(open(csv_file))) # A list of rows
         cendiv_NEMS = dict()
         for row_number in range(1, len(cendiv_NEMS_csv)):
@@ -83,11 +111,11 @@ class LoadInputs():
         construction_history_by_state,
         states_cendivs,
         cendiv_NEMS):
-        # The following code takes construction_history_by_state
-        # and breaks each state's floor space into its constituent
-        # NEMS building types as defined in cendiv_NEMS.
-        # Original: construction_history_by_state['CA'] = total for all of CA
-        # Modified: construction_history['CA'][78] = total for just office space in CA
+        ''' The following code takes construction_history_by_state and breaks
+        each state's floor space into its constituent NEMS building types as
+        defined in cendiv_NEMS.
+        Original: construction_history_by_state['CA'] = total for all of CA
+        Modified: construction_history['CA'][78] = total for just office space in CA.'''
         construction_history = dict()
         for state in construction_history_by_state:
             construction_history[state] = dict()
@@ -100,3 +128,10 @@ class LoadInputs():
                     floor_space = total_state_year_floor_space * percentage
                     construction_history[state][year][NEMS_building_type] = floor_space
         return construction_history
+##inputs = LoadInputs()
+##import pprint
+##pprint.pprint(inputs.code_compliance['CA'])
+##print("###########\n\n\n########")
+##print(inputs.code_key)
+##print("###########\n\n\n########")
+##pprint.pprint(inputs.floor_space_coverage_by_code)

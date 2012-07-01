@@ -27,20 +27,21 @@ def main():
         current_year,
         bin_years_sum,
         code_compliance,
+        code_key,
         floor_space_coverage_by_code):
         for state in bin_years_sum.keys():
             for year in bin_years_sum[state].keys():
                 if year in code_compliance[state]:
-                    code_number = int(code_compliance[state][year])
-                    code_title = code_key[code_number]
+                    code_number = code_compliance[state][year] #these are strings; deal with it sometime
+                    code_title = code_key[int(code_number)]
                 else:
                     code_number = 0
                     code_title = "none specified"
                 covered_floor_space = 0
                 uncovered_floor_space = 0
                 for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    if code_number in floor_space_coverage_by_code[str(building_type)].keys():
-                        coverage_multiplier = float(floor_space_coverage_by_code[str(building_type)][code_number])
+                    if code_number in floor_space_coverage_by_code[building_type].keys():
+                        coverage_multiplier = float(floor_space_coverage_by_code[building_type][code_number])
                     else:
                         coverage_multiplier = 0
                     covered_floor_space += bin_years_sum[state][year][building_type] * coverage_multiplier
@@ -82,7 +83,7 @@ def main():
 ##        print_csv_database_rows(1904, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
 
     # Create a range of snapshots
-        start_year = 1900
+        start_year = 2005
         end_year = 2030
         for snapshot_year in range(start_year, end_year + 1):
             start_time_stamp = datetime.now()
@@ -91,7 +92,7 @@ def main():
             print("Now aging it to", snapshot_year)
             age_building_stock_to_year(snapshot, snapshot_year)
             code_bins = sum_bin_years(snapshot)
-            print_csv_database_rows(snapshot_year, code_bins, inputs.code_compliance, inputs.floor_space_coverage_by_code)
+            print_csv_database_rows(snapshot_year, code_bins, inputs.code_compliance, inputs.code_key, inputs.floor_space_coverage_by_code)
             end_time_stamp = datetime.now()
             print("Duration between years:", end_time_stamp - start_time_stamp)
 
