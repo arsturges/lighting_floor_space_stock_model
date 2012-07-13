@@ -23,27 +23,35 @@ def main():
                     floor_space_object.remaining_floor_space_by_year[bin_year][building_type]                
                 writer.writerow([current_year,state,bin_year,building_type,"NA","NA","NA",total_floor_space])
 
+    def return_code_number_and_title(year, state):
+        code_compliance = inputs.code_compliance
+        code_key = inputs.code_key
+        if year in code_compliance[state]:
+            code_number = code_compliance[state][year] #these are strings; deal with it sometime
+            code_title = code_key[int(code_number)]
+        else:
+            code_number = 0
+            code_title = "none specified"
+        return code_number, code_title
+
+    def return_coverage_multiplier(building_type, code_number):
+        floor_space_coverage_by_code = inputs.floor_space_coverage_by_code
+        if code_number in floor_space_coverage_by_code[building_type].keys():
+            coverage_multiplier = float(floor_space_coverage_by_code[building_type][code_number])
+        else:
+            coverage_multiplier = 0
+        return coverage_multiplier
+
     def print_csv_database_rows(
         current_year,
-        bin_years_sum,
-        code_compliance,
-        code_key,
-        floor_space_coverage_by_code):
+        bin_years_sum):
         for state in bin_years_sum.keys():
             for year in bin_years_sum[state].keys():
-                if year in code_compliance[state]:
-                    code_number = code_compliance[state][year] #these are strings; deal with it sometime
-                    code_title = code_key[int(code_number)]
-                else:
-                    code_number = 0
-                    code_title = "none specified"
+                code_number, code_title = return_code_number_and_title(year, state)
                 covered_floor_space = 0
                 uncovered_floor_space = 0
                 for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    if code_number in floor_space_coverage_by_code[building_type].keys():
-                        coverage_multiplier = float(floor_space_coverage_by_code[building_type][code_number])
-                    else:
-                        coverage_multiplier = 0
+                    coverage_multiplier = return_coverage_multiplier(building_type,code_number)
                     covered_floor_space += bin_years_sum[state][year][building_type] * coverage_multiplier
                     uncovered_floor_space += bin_years_sum[state][year][building_type] * (1 - coverage_multiplier)
                 writer.writerow([current_year,state,year,building_type,code_number,code_title,'covered:',covered_floor_space])
@@ -73,7 +81,7 @@ def main():
             print("Aging to year", snapshot_year)
             age_building_stock_to_year(_1900_to_2030, snapshot_year)
             code_bins = sum_bin_years(_1900_to_2030, snapshot_year)
-            print_csv_database_rows(snapshot_year, code_bins, inputs.code_compliance, inputs.code_key, inputs.floor_space_coverage_by_code)
+            print_csv_database_rows(snapshot_year, code_bins)
 main()
 #cProfile.run('main()')
 
