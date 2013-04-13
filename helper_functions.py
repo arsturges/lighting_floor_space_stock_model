@@ -69,5 +69,41 @@ def return_coverage_multiplier(building_type, code_number):
         coverage_multiplier = 0
     return coverage_multiplier
 
+def print_csv_database_rows(current_year, bin_years_sum, writer):
+    for state in bin_years_sum.keys():
+        for year in bin_years_sum[state].keys():
+            code_number, code_title = return_code_number_and_title(year, state)
+####                sum_across_all_building_types = 0
+####                for building_type in [1,2,3,4,5,6,9,10,11,78]:
+####                    sum_across_all_building_types += bin_years_sum[state][year][building_type]
+####                writer.writerow([current_year,state,year,"All",code_number,code_title,"all floor space:", sum_across_all_building_types])
+            covered_floor_space = 0
+            uncovered_floor_space = 0
+            compliance_rate = 0.25
+            for building_type in [1,2,3,4,5,6,9,10,11,78]:
+                coverage_multiplier = return_coverage_multiplier(
+                    building_type,
+                    code_number) * compliance_rate
+                covered_floor_space += bin_years_sum[state][year][building_type] * coverage_multiplier
+                uncovered_floor_space += bin_years_sum[state][year][building_type] * (1 - coverage_multiplier)
+            writer.writerow([
+                current_year,
+                state,
+                year,
+                building_type,
+                code_number,
+                code_title,
+                'covered:',
+                covered_floor_space])
+            writer.writerow([
+                current_year,
+                state,
+                year,
+                building_type,
+                code_number,
+                code_title,
+                'uncovered:',
+                uncovered_floor_space])
+
 if __name__ == "__main__":
     print(return_coverage_multiplier(78,16))
