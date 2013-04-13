@@ -11,17 +11,17 @@ class LoadInputs():
         state_energy_code_key = 'csv_inputs/state_energy_code_key_SIMPLIFIED.csv'
 
         # Create some csv.reader objects:
-        code_key_reader         = csv.reader(open(state_energy_code_key))
-        states_cendivs_reader   = csv.reader(open(state_cendiv_correspondance))
+        code_key_reader = csv.reader(open(state_energy_code_key))
+        states_cendivs_reader = csv.reader(open(state_cendiv_correspondance))
 
         # Parse paths and reader objects into usable dictionaries:
-        self.code_key                       = self.convert_csv_to_dictionary_without_header(code_key_reader)
-        self.states_cendivs                 = self.convert_csv_to_dictionary_without_header(states_cendivs_reader)
-        self.construction_history_by_state  = self.convert_csv_to_dictionary_of_dictionaries(starts)
-        self.code_compliance                = self.convert_csv_to_dictionary_of_dictionaries(scenario)
-        self.floor_space_coverage_by_code   = self.convert_csv_to_dictionary_of_dictionaries(floor_space_coverage_by_code)
-        self.cendiv_NEMS                    = self.import_3_column_data(cendiv_NEMS_percentages)
-        self.construction_history           = self.add_NEMS_building_types_to_construction_history(
+        self.code_key = self.convert_csv_to_dictionary_without_header(code_key_reader)
+        self.states_cendivs = self.convert_csv_to_dictionary_without_header(states_cendivs_reader)
+        self.construction_history_by_state = self.convert_csv_to_dictionary_of_dictionaries(starts)
+        self.code_compliance = self.convert_csv_to_dictionary_of_dictionaries(scenario)
+        self.floor_space_coverage_by_code = self.convert_csv_to_dictionary_of_dictionaries(floor_space_coverage_by_code)
+        self.cendiv_NEMS = self.import_3_column_data(cendiv_NEMS_percentages)
+        self.construction_history= self.add_NEMS_building_types_to_construction_history(
             self.construction_history_by_state,
             self.states_cendivs,
             self.cendiv_NEMS)
@@ -123,7 +123,8 @@ class LoadInputs():
                 total_state_year_floor_space = float(construction_history_by_state[state][year])
                 construction_history[state][year] = dict()
                 cendiv = int(states_cendivs[state])
-                for NEMS_building_type in [1,2,3,4,5,6,9,10,11,78]: #better to pull this from the csv
+                for NEMS_building_type in [1,2,3,4,5,6,9,10,11,78]: 
+                    #better to pull this from the csv
                     percentage = cendiv_NEMS[cendiv][NEMS_building_type]
                     floor_space = total_state_year_floor_space * percentage
                     construction_history[state][year][NEMS_building_type] = floor_space
