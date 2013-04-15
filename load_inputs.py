@@ -8,7 +8,7 @@ class LoadInputs():
         floor_space_coverage_by_code = 'csv_inputs/floor_space_under_building_lighting_automatic_shutoff.csv'
         scenario = 'csv_inputs/state_energy_code_compliance_no_increase.csv'
         #scenario = 'csv_inputs/state_energy_code_compliance_federal_standard_2007_by_2015.csv'
-        state_energy_code_key = 'csv_inputs/state_energy_code_key.csv'
+        state_energy_code_key = 'csv_inputs/state_energy_code_key_SIMPLIFIED.csv'
 
         # Create some csv.reader objects:
         code_key_reader         = csv.reader(open(state_energy_code_key))
