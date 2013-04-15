@@ -57,8 +57,8 @@ def return_code_number_and_title(year, state):
         code_number = code_compliance[state][year] #these are strings; deal with it sometime
         code_title = code_key[int(code_number)]
     else:
-        code_number = 0
-        code_title = "none specified"
+        code_number = 99
+        code_title = "Pre-2002 Building Code"
     return code_number, code_title
 
 def return_coverage_multiplier(building_type, code_number):
@@ -68,3 +68,6 @@ def return_coverage_multiplier(building_type, code_number):
     else:
         coverage_multiplier = 0
     return coverage_multiplier
+
+if __name__ == "__main__":
+    print(return_coverage_multiplier(78,16))
