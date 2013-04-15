@@ -3,7 +3,7 @@ floor_space.py
 Written for Python 3.2.2.
 
 This file includes the Floor_Space class which defines the building
-stock objects and their behaviors.
+stock object and its behavior.
 
 The building stock of each individual year is represented as one distinct
 object of the class "Floor_Space." The object keeps track of its own
@@ -16,7 +16,6 @@ import pprint
 import copy
 
 class FloorSpace:
-    verbose = False
     def __init__(self, year_of_construction, total_initial_square_feet, region):
         # total_initial_square_feet is expected to be a dictionary of NEMS
         # building types, not just an integer.
@@ -24,10 +23,9 @@ class FloorSpace:
         self.year_of_construction = year_of_construction
         self.current_year = year_of_construction
         self.total_initial_square_feet = total_initial_square_feet
-        #self.stock_age = 0
         self.remaining_floor_space_by_year = {} # dictionary of dictionaries;
         self.remaining_floor_space_by_year[self.year_of_construction] = (
-            self.total_initial_square_feet)
+            self.total_initial_square_feet) # but this should be an array of building types, no?
 
     def choose_renovation_rate(self, years_since_last_renovation):
         if years_since_last_renovation < 7:
@@ -41,6 +39,7 @@ class FloorSpace:
         else:
             rate = 0.1
         return rate
+    
 
     def choose_demolition_rate(self, years_since_construction):
         if (years_since_construction < 10) or (self.current_year < 1979):
@@ -95,9 +94,9 @@ class FloorSpace:
             # January 1 of current_year
 
             # See what you have:
-            # pprint.pprint(self.remaining_floor_space_by_year)
+            # self.remaining_floor_space_by_year
 
-            # Increment (at which point it's December 31,
+            # Increment (at which point it's December 31)
             # the date on which all demoltion and renovation occurs:
             self.current_year += 1
 
@@ -144,5 +143,5 @@ class FloorSpace:
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 floor_space_to_be_demolished[bin_year][building_type] = (
                     (1 - rate) * floor_space_to_be_demolished[bin_year][building_type])
-            bin_year += 1 #go to the next bin
+            bin_year += 1
         return floor_space_to_be_demolished
