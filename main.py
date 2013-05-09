@@ -18,7 +18,17 @@ inputs = LoadInputs()
 
 # Run the model using convenience methods from helper_functions.py:
 
-with open('results.csv', 'w', newline='') as f:
+
+# Create a single, complete building stock, age it one year at a time, 
+# then sum and print those years.
+start_year = 1900
+end_year = 2030
+_1900_to_2030 = helper_functions.create_building_stock(
+    1900, 
+    2030, 
+    copy.deepcopy(inputs.construction_history))
+
+with open('results.csv', 'w') as f:#, newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['snapshot_year',
                      'state',
@@ -29,14 +39,6 @@ with open('results.csv', 'w', newline='') as f:
                      'subspace',
                      'floor_space'])
 
-# Create a single, complete building stock, age it one year at a time, 
-# then sum and print those years.
-    start_year = 1900
-    end_year = 2030
-    _1900_to_2030 = helper_functions.create_building_stock(
-        1900, 
-        2030, 
-        copy.deepcopy(inputs.construction_history))
     for snapshot_year in range(start_year, end_year + 1):
         print("Aging to year", snapshot_year)
         helper_functions.age_building_stock_to_year(_1900_to_2030, snapshot_year)

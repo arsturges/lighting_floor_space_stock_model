@@ -49,7 +49,7 @@ class LoadInputs():
         It returns the value of what was in the csv file for that year/state.
         '''
 
-        reader = csv.reader(open(csv_file, newline='')) # A 'reader' object
+        reader = csv.reader(open(csv_file))#, newline='')) # A 'reader' object
         reader_rows = list(reader)
         # A list object; the number of rows is the same as rows in the csv file.
         
