@@ -8,7 +8,10 @@ def create_building_stock(start_build_year, end_build_year, construction_data):
     building_stock_objects = list()
     for state in construction_data.keys():
         for i in range(start_build_year, end_build_year + 1):
-            building_stock_objects.append(FloorSpace(i, construction_data[str(state)][i], str(state)))
+            building_stock_objects.append(FloorSpace(
+                i, 
+                construction_data[str(state)][i], 
+                str(state)))
     return building_stock_objects
 
 def age_building_stock_to_year(building_stock_objects, year):
