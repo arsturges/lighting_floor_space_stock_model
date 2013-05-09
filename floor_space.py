@@ -15,6 +15,8 @@ about their state at any point in time.'''
 import pprint
 import copy
 
+#TODO: Make most of these methods private
+
 class FloorSpace:
     def __init__(self, year_of_construction, total_initial_square_feet, region):
         # total_initial_square_feet is expected to be a dictionary of NEMS
@@ -56,7 +58,7 @@ class FloorSpace:
         return rate
 
     def distribute_to_new_bin_year(
-            self, 
+            self,
             renovated_floor_space,
             unrenovated_floor_space,
             bin_year):
@@ -72,7 +74,7 @@ class FloorSpace:
         return floor_space_after_renovation
 
     def scrape_off_renovated_floor_space(
-            self, 
+            self,
             floor_space,
             temp_floor_space_holder,
             bin_year,
@@ -93,12 +95,12 @@ class FloorSpace:
 
     def age_n_years(self, n_years):
         '''
-        During every year that a particular stock object gets
-        older (e.g. the stock built in 1975), a fraction of every
-        bin going back to the year of construction is demolished.
-        A portion of what remains, from every year_bin, is then
-        renovated. That portion that was renovated is removed from
-        the initial bin and moved to the current year's bin.'''
+        During every year that a particular stock object gets older (e.g. the
+        stock built in 1975), a fraction of every bin going back to the year
+        of construction is demolished. A portion of what remains, from every 
+        year_bin, is then renovated. That portion that was renovated is
+        removed from the initial bin and moved to the current year's bin.
+        '''
         initial_year = self.current_year
         end_year = self.current_year + n_years
         
@@ -161,3 +163,12 @@ class FloorSpace:
                     (1 - rate) * floor_space_to_be_demolished[bin_year][building_type])
             bin_year += 1
         return floor_space_to_be_demolished
+
+if __name__ == "__main__":
+    constructed_floor_space = {1:13, 2:35, 3:53, 4:64,5:76,6:85,9:45,10:32,11:25,78:35}
+    obj = FloorSpace(1998, constructed_floor_space, 'CA')
+    obj.current_year # 1998
+    obj.age_n_years(10) 
+    obj.current_year # 2008
+    obj.year_of_construction # 1998
+    obj.region # 'CA'
