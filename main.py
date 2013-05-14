@@ -24,8 +24,8 @@ inputs = LoadInputs()
 start_year = 1900
 end_year = 2030
 _1900_to_2030 = helper_functions.create_building_stock(
-    1900, 
-    2030, 
+    start_year, 
+    end_year, 
     copy.deepcopy(inputs.construction_history))
 
 with open('results.csv', 'w') as f:#, newline='') as f:
