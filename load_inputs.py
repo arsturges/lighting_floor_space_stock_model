@@ -129,10 +129,14 @@ class LoadInputs():
                     floor_space = total_state_year_floor_space * percentage
                     construction_history[state][year][NEMS_building_type] = floor_space
         return construction_history
-##inputs = LoadInputs()
-##import pprint
-##pprint.pprint(inputs.code_compliance['CA'])
-##print("###########\n\n\n########")
-##print(inputs.code_key)
-##print("###########\n\n\n########")
-##pprint.pprint(inputs.floor_space_coverage_by_code)
+
+if __name__ == "__main__":
+    inputs = LoadInputs()
+    import pprint
+    pprint.pprint(inputs.code_compliance['CA'])
+    print("###########\n\n\n########")
+    print(inputs.code_key)
+    print("###########\n\n\n########")
+    pprint.pprint(inputs.floor_space_coverage_by_code)
+    print("###########\n\n\n########")
+    pprint.pprint(inputs.construction_history)

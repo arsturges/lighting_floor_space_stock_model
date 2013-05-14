@@ -21,6 +21,7 @@ class FloorSpace:
     def __init__(self, year_of_construction, total_initial_square_feet, region):
         # total_initial_square_feet is expected to be a dictionary of NEMS
         # building types, not just an integer.
+        assert type(total_initial_square_feet) == dict, "Square footage must be dictionary"
         self.region = region
         self.year_of_construction = year_of_construction
         self.current_year = year_of_construction
@@ -43,7 +44,7 @@ class FloorSpace:
             rate = 0.1
         return rate
     
-
+    """
     def choose_demolition_rate(self, years_since_construction):
         if (years_since_construction < 10) or (self.current_year < 1979):
             rate = 0
@@ -56,6 +57,7 @@ class FloorSpace:
         else: # after 1979 and buildings are older than 70, maybe historical
             rate = 0.04
         return rate
+    """
 
     def distribute_to_new_bin_year(
             self,
@@ -149,26 +151,84 @@ class FloorSpace:
         return floor_space_after_renovation
 
     def demolish(self, floor_space_to_be_demolished):
-        '''we can define a demolition rate based on building stock age,
-        current year, location, building tpye, etc. For now, just use
-        a static rate. Assume "floor_space" is a dictionary-of-
-        dictionaries object.'''
+        '''
+        We can define a demolition rate based on building stock age,
+        current year, location, building tpye, etc. Assume "floor_space" is 
+        a dictionary-of- dictionaries object.
+        '''
+        building_age = self.current_year - self.year_of_construction
         bin_year = self.year_of_construction #start at first bin
+        surviving_floor_space = {}
         while bin_year < self.current_year:
-            years_since_construction = self.current_year - self.year_of_construction
-            rate = self.choose_demolition_rate(years_since_construction)
-
+            surviving_floor_space[bin_year] = {}
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                floor_space_to_be_demolished[bin_year][building_type] = (
-                    (1 - rate) * floor_space_to_be_demolished[bin_year][building_type])
+                survival_rate = self.surviving_proportion_wrapper(building_type, building_age)
+                surviving_floor_space[bin_year][building_type] = (
+                    (survival_rate) * floor_space_to_be_demolished[bin_year][building_type])
             bin_year += 1
-        return floor_space_to_be_demolished
+        return surviving_floor_space
+
+    def surviving_proportion_wrapper(self, building_type, building_age):
+        """
+        This wraps `surviving_proportion` so that it takes building type and 
+        age instead of age, lifetime, and gamma. Gammas and median lifetimes 
+        come from table 5.2, 'Assumptions to the aeo 2012'
+        http://www.eia.gov/forecasts/aeo/assumptions/pdf/commercial.pdf
+        """
+        assert type(building_type)==int, "building_type must be an integer"
+        gammas = {
+            1:2.2, # assembly
+            2:2.1, # education
+            3:2.3, # food sales
+            4:2.0, # food service
+            5:2.5, # health care
+            6:2.1, # lodging
+            9:2.2, # merc/service
+            10:2.0, # warehouse
+            11:2.3, # other
+            78:2.0 # large office and small ofice
+            }
+        gamma = gammas[building_type]
+
+        median_lifetimes= {
+            1:55, # assembly
+            2:62, # education
+            3:55, # food sales
+            4:50, # food service
+            5:55, # health care
+            6:53, # lodging
+            9:50, # merc/service
+            10:58, # warehouse
+            11:60, # other
+            78:(65+58)/2 # large office and small ofice
+            }
+        median_lifetime = median_lifetimes[building_type]
+        surviving_proportion = self.surviving_proportion(
+            building_age,
+            median_lifetime,
+            gamma)
+        return surviving_proportion
+
+    def surviving_proportion(self, building_age, median_lifetime, gamma):
+        """
+        Source: http://www.eia.gov/forecasts/aeo/assumptions/pdf/commercial.pdf
+        This is the survival function, taken from AEO 2012. Gamma values are given
+        in table 5.2.
+        """
+        building_age = float(building_age)
+        median_lifetime = float(median_lifetime)
+        gamma = float(gamma)
+        assert gamma>0, "Gamma must be greater than 0 for survival function."
+            # See page 59 of NEMS Commercial Demand Module Documentation Report 2001
+        surviving_proportion = 1/(1+(building_age/median_lifetime)**gamma)
+        return surviving_proportion
 
 if __name__ == "__main__":
-    constructed_floor_space = {1:13, 2:35, 3:53, 4:64,5:76,6:85,9:45,10:32,11:25,78:35}
-    obj = FloorSpace(1998, constructed_floor_space, 'CA')
-    obj.current_year # 1998
-    obj.age_n_years(10) 
-    obj.current_year # 2008
-    obj.year_of_construction # 1998
+    constructed_floor_space = {1:10, 2:10, 3:10, 4:10,5:10,6:10,9:10,10:10,11:10,78:10}
+    obj = FloorSpace(1990, constructed_floor_space, 'CA')
+    obj.current_year # 1990
+    obj.age_n_years(2) 
+    obj.current_year # 1990 + n
+    obj.year_of_construction # 1990
     obj.region # 'CA'
+    pprint.pprint(obj.remaining_floor_space_by_year)
