@@ -7,41 +7,43 @@ def create_building_stock(start_build_year, end_build_year, construction_data):
     # Mass-create a building stock.
     building_stock_objects = list()
     for state in construction_data.keys():
-        for i in range(start_build_year, end_build_year + 1):
+        for year in range(start_build_year, end_build_year + 1):
             building_stock_objects.append(FloorSpace(
-                i, 
-                construction_data[str(state)][i], 
+                year, 
+                construction_data[str(state)][year], 
                 str(state)))
     return building_stock_objects
 
 def age_building_stock_to_year(building_stock_objects, year):
     # Age a list of building_stock_objects to year.
-    for i in range(len(building_stock_objects)):
-        start_year = building_stock_objects[i].current_year
-        building_stock_objects[i].age_n_years(year - start_year)
+    for stock_object in building_stock_objects:
+        start_year = stock_object.current_year
+        years_to_age = year - start_year
+        if years_to_age > 0:
+            stock_object.age_n_years(years_to_age)
     return building_stock_objects
 
-def sum_bin_years(stock_objects, sum_to_year):
-    # Combine all individual FloorSpace objects into one.
-    # Show a complete picture of all existing floor space bins by state, year,
-    # and building type, as it exists in the 'sum-to year'.
-    # bin_years_sum['CA'][1950][78] = 2467.937 (floor space from all years having a 1950 bin)
+def sum_bin_years(stock_objects):
+    """
+    Combine all individual FloorSpace objects into one.
+    Show a complete picture of all existing floor space bins by state, year,
+    and building type, as it exists in the 'current_year'.
+    bin_years_sum['CA'][1950][78] = 2467.937 (floor space from all years having a 1950 bin)
+    """
     bin_years_sum = dict()
     for stock_object in stock_objects:
-        end_year = stock_object.current_year
-        if sum_to_year >= end_year:
-            state = stock_object.region
-            start_year = stock_object.year_of_construction
-            end_year = stock_object.current_year
-            if not state in bin_years_sum:
-                bin_years_sum[state] = dict()
-            for year in range(start_year, end_year + 1):
-                if not year in bin_years_sum[state]:
-                    bin_years_sum[state][year] = dict()
-                for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                    if not building_type in bin_years_sum[state][year]:
-                        bin_years_sum[state][year][building_type] = 0
-                    bin_years_sum[state][year][building_type] += stock_object.remaining_floor_space_by_year[year][building_type]
+        state = stock_object.region
+        bin_years = stock_object.remaining_floor_space_by_year.keys()
+        if not state in bin_years_sum:
+            bin_years_sum[state] = dict()
+        for bin_year in bin_years:
+            if not bin_year in bin_years_sum[state]:
+                bin_years_sum[state][bin_year] = dict()
+            for building_type in [1,2,3,4,5,6,9,10,11,78]:
+                if not building_type in bin_years_sum[state][bin_year]:
+                    bin_years_sum[state][bin_year][building_type] = 0
+                bin_years_sum[state][bin_year][building_type] += \
+                    stock_object.remaining_floor_space_by_year[bin_year][building_type]
     return bin_years_sum
 
 def print_single_floor_space_object(floor_space_object):
@@ -73,40 +75,47 @@ def return_coverage_multiplier(building_type, code_number):
     return coverage_multiplier
 
 def print_csv_database_rows(current_year, bin_years_sum, writer):
+    compliance_rate = 0.75
     for state in bin_years_sum.keys():
         for year in bin_years_sum[state].keys():
             code_number, code_title = return_code_number_and_title(year, state)
-####                sum_across_all_building_types = 0
-####                for building_type in [1,2,3,4,5,6,9,10,11,78]:
-####                    sum_across_all_building_types += bin_years_sum[state][year][building_type]
-####                writer.writerow([current_year,state,year,"All",code_number,code_title,"all floor space:", sum_across_all_building_types])
-            covered_floor_space = 0
-            uncovered_floor_space = 0
-            compliance_rate = 0.25
+            sum_across_all_building_types = 0
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                coverage_multiplier = return_coverage_multiplier(
+                sum_across_all_building_types += bin_years_sum[state][year][building_type]
+                coverage_multiplier = return_coverage_multiplier(building_type, code_number) * compliance_rate
+                covered_floor_space = bin_years_sum[state][year][building_type] * coverage_multiplier
+                uncovered_floor_space = bin_years_sum[state][year][building_type]*(1-coverage_multiplier)
+                # Write covered floor space of particular building type:
+                writer.writerow([
+                    current_year,
+                    state,
+                    year,
                     building_type,
-                    code_number) * compliance_rate
-                covered_floor_space += bin_years_sum[state][year][building_type] * coverage_multiplier
-                uncovered_floor_space += bin_years_sum[state][year][building_type] * (1 - coverage_multiplier)
+                    code_number,
+                    code_title,
+                    'covered:',
+                    covered_floor_space])
+                # Write uncovered floor space of particular building type:
+                writer.writerow([
+                    current_year,
+                    state,
+                    year,
+                    building_type,
+                    code_number,
+                    code_title,
+                    'uncovered:',
+                    uncovered_floor_space])
+
+            # Write out sum all of covered/uncovered fs across all building_types
             writer.writerow([
                 current_year,
                 state,
                 year,
-                building_type,
+                "Sum over all",
                 code_number,
                 code_title,
-                'covered:',
-                covered_floor_space])
-            writer.writerow([
-                current_year,
-                state,
-                year,
-                building_type,
-                code_number,
-                code_title,
-                'uncovered:',
-                uncovered_floor_space])
+                "all floor space:",
+                sum_across_all_building_types])
 
 if __name__ == "__main__":
     print(return_coverage_multiplier(78,16))
