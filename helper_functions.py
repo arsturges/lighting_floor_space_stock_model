@@ -74,48 +74,48 @@ def return_coverage_multiplier(building_type, code_number):
         coverage_multiplier = 0
     return coverage_multiplier
 
-def print_csv_database_rows(current_year, bin_years_sum, writer):
-    compliance_rate = 0.75
+def print_csv_database_rows(snapshot_year, start_year, bin_years_sum, writer):
+    compliance_rate = 0.8
     for state in bin_years_sum.keys():
-        for year in bin_years_sum[state].keys():
-            code_number, code_title = return_code_number_and_title(year, state)
-            sum_across_all_building_types = 0
-            for building_type in [1,2,3,4,5,6,9,10,11,78]:
-                sum_across_all_building_types += bin_years_sum[state][year][building_type]
-                coverage_multiplier = return_coverage_multiplier(building_type, code_number) * compliance_rate
-                covered_floor_space = bin_years_sum[state][year][building_type] * coverage_multiplier
-                uncovered_floor_space = bin_years_sum[state][year][building_type]*(1-coverage_multiplier)
-                # Write covered floor space of particular building type:
-                writer.writerow([
-                    current_year,
-                    state,
-                    year,
-                    building_type,
-                    code_number,
-                    code_title,
-                    'covered:',
-                    covered_floor_space])
-                # Write uncovered floor space of particular building type:
-                writer.writerow([
-                    current_year,
-                    state,
-                    year,
-                    building_type,
-                    code_number,
-                    code_title,
-                    'uncovered:',
-                    uncovered_floor_space])
+        for renovation_year in range(start_year, snapshot_year + 1):#bin_years_sum[state].keys():
+            code_number, code_title = return_code_number_and_title(renovation_year, state)
+            sum_across_all_b_types = 0 # b_types is building_types
+            sum_covered = 0
+            sum_uncovered = 0
+            for b_type in [1,2,3,4,5,6,9,10,11,78]:
+                floor_space = bin_years_sum[state][renovation_year][b_type] # 100 ft2
+                coverage_multiplier = return_coverage_multiplier(b_type, code_number) # 0.75
+                compliant_fs = floor_space * compliance_rate # 100 * 0.8 = 80 fts2
+                non_compliant_fs = floor_space * (1-compliance_rate) # 100 * 0.2 = 20 ft2
+                covered_compliant_fs = compliant_fs * coverage_multiplier # 80 * .75 = 60 ft2
+                uncovered_compliant_fs = compliant_fs * (1-coverage_multiplier) # 80 * .25 = 20 ft2
+
+                covered_floor_space = covered_compliant_fs # 60 ft2
+                uncovered_floor_space = non_compliant_fs + uncovered_compliant_fs # 20 + 20 = 40 ft2
+
+                sum_across_all_b_types += floor_space
+                sum_covered += covered_floor_space
+                sum_uncovered += uncovered_floor_space
 
             # Write out sum all of covered/uncovered fs across all building_types
             writer.writerow([
-                current_year,
+                snapshot_year,
                 state,
-                year,
+                renovation_year,
                 "Sum over all",
                 code_number,
                 code_title,
-                "all floor space:",
-                sum_across_all_building_types])
+                "Covered",
+                sum_covered])
+            writer.writerow([
+                snapshot_year,
+                state,
+                renovation_year,
+                "Sum over all",
+                code_number,
+                code_title,
+                "Uncovered",
+                sum_uncovered])
 
 if __name__ == "__main__":
     print(return_coverage_multiplier(78,16))

@@ -19,7 +19,7 @@ inputs = LoadInputs()
 # Create a single, complete building stock, age it one year at a time, 
 # then sum and print those years.
 start_year = 1900
-end_year = 2030
+end_year = 2030 
 _1900_to_2030 = helper_functions.create_building_stock(
     start_year, 
     end_year, 
@@ -41,8 +41,9 @@ with open('results.csv', 'w') as f:#, newline='') as f:
             print("Aging to year {}".format(snapshot_year))
             helper_functions.age_building_stock_to_year(_1900_to_2030, snapshot_year)
         code_bins = helper_functions.sum_bin_years(_1900_to_2030)
-        helper_functions.print_csv_database_rows(snapshot_year, code_bins, writer)
+        helper_functions.print_csv_database_rows(snapshot_year, start_year, code_bins, writer)
 
 
 end_time = datetime.now()
-print("Duration:", end_time - start_time)
+duration = end_time - start_time
+print("Duration: {}".format(duration))
