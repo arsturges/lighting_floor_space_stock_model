@@ -62,9 +62,7 @@ class FloorSpace:
     
         while end_year > self.current_year:
             self.current_year += 1
-            self.remaining_floor_space_by_year = self.demolish(self.remaining_floor_space_by_year)
-            #self.remaining_floor_space_by_year = self.renovate(self.remaining_floor_space_by_year)
-            #self.demolish()
+            self.demolish()
             self.renovate()
 
     def renovate(self):
@@ -84,31 +82,28 @@ class FloorSpace:
                 # And reduce the old bin by the same amount:
                 self.remaining_floor_space_by_year[bin_year][building_type] = (1-rate) * self.remaining_floor_space_by_year[bin_year][building_type]
 
-    def demolish(self, floor_space_to_be_demolished):
+    def demolish(self):
         '''
         We can define a demolition rate based on building stock age,
-        current year, location, building tpye, etc. Assume "floor_space" is 
+        current year, location, building type, etc. Assume "floor_space" is 
         a dictionary-of-dictionaries object.
         '''
         # If floor space exists up to year a, it must have a year 
         # bin from the previous year:
-        assert self.current_year - 1 in floor_space_to_be_demolished # e.g. fstbd[1992]
-        bin_year = self.year_of_construction #start at first bin
-        surviving_floor_space = {}
-        while bin_year < self.current_year:
-            """ Each bin year has it's own age. If a 100-year-old building is
+        assert self.current_year - 1 in self.remaining_floor_space_by_year # e.g. fstbd[1992]
+        renovation_year = self.year_of_construction #start at first bin
+        while renovation_year < self.current_year:
+            """ Each renovation year has it's own age. If a 100-year-old building is
             renovated, it's chance of demolition goes down to that of a 1-
             year-old building. """
-            floor_space_age = self.current_year - bin_year 
-            surviving_floor_space[bin_year] = {}
+            floor_space_age = self.current_year - renovation_year 
             for building_type in [1,2,3,4,5,6,9,10,11,78]:
                 survival_rate = self.surviving_proportion_wrapper(
                     building_type,
                     floor_space_age)
-                surviving_floor_space[bin_year][building_type] = (
-                    (survival_rate) * floor_space_to_be_demolished[bin_year][building_type])
-            bin_year += 1
-        return surviving_floor_space
+                surviving_floor_space = survival_rate * self.remaining_floor_space_by_year[renovation_year][building_type]
+                self.remaining_floor_space_by_year[renovation_year][building_type] = surviving_floor_space
+            renovation_year += 1
 
     def surviving_proportion_wrapper(self, building_type, building_age):
         """
