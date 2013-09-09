@@ -80,7 +80,7 @@ class FloorSpace:
                 # Put a fraction of floor space into the new bin:
                 self.remaining_floor_space_by_year[self.current_year][building_type] += rate * self.remaining_floor_space_by_year[bin_year][building_type] 
                 # And reduce the old bin by the same amount:
-                self.remaining_floor_space_by_year[bin_year][building_type] = (1-rate) * self.remaining_floor_space_by_year[bin_year][building_type]
+                self.remaining_floor_space_by_year[bin_year][building_type] *= (1-rate)
 
     def demolish(self):
         '''

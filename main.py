@@ -25,7 +25,7 @@ _1900_to_2030 = helper_functions.create_building_stock(
     end_year, 
     copy.deepcopy(inputs.construction_history))
 
-with open('results.csv', 'w') as f:#, newline='') as f:
+with open('2013-09-09_results_from_branch.csv', 'w') as f:#, newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['snapshot_year',
                      'state',
