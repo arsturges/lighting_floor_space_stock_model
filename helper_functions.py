@@ -10,7 +10,7 @@ def create_building_stock(start_build_year, end_build_year, construction_data):
         for year in range(start_build_year, end_build_year + 1):
             building_stock_objects.append(FloorSpace(
                 year, 
-                construction_data[str(state)][year], 
+                construction_data[str(state)][year].copy(), 
                 str(state)))
     return building_stock_objects
 
