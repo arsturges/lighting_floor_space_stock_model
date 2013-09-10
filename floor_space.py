@@ -30,6 +30,13 @@ class FloorSpace:
             self.total_initial_square_feet) 
             # but this should be an array of building types, no?
 
+    def total_remaining_floor_space(self):
+        total_remaining_floor_space = 0
+        for year_bin in self.remaining_floor_space_by_year.keys():
+            year_bin_sum = sum(self.remaining_floor_space_by_year[year_bin].values())
+            total_remaining_floor_space += year_bin_sum
+        return total_remaining_floor_space
+
     def choose_renovation_rate(self, years_since_last_renovation):
         if years_since_last_renovation < 7:
             rate = 0
