@@ -1,5 +1,6 @@
 from floor_space import *
 from load_inputs import LoadInputs
+import copy
 
 inputs = LoadInputs()
 def create_building_stock(start_build_year, end_build_year, construction_data):
@@ -10,7 +11,7 @@ def create_building_stock(start_build_year, end_build_year, construction_data):
         for year in range(start_build_year, end_build_year + 1):
             building_stock_objects.append(FloorSpace(
                 year, 
-                construction_data[str(state)][year].copy(), 
+                copy.deepcopy(construction_data[str(state)][year]),
                 str(state)))
     return building_stock_objects
 

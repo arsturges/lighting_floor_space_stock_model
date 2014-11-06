@@ -108,8 +108,7 @@ class FloorSpace:
                 survival_rate = self.surviving_proportion_wrapper(
                     building_type,
                     floor_space_age)
-                surviving_floor_space = survival_rate * self.remaining_floor_space_by_year[renovation_year][building_type]
-                self.remaining_floor_space_by_year[renovation_year][building_type] = surviving_floor_space
+                self.remaining_floor_space_by_year[renovation_year][building_type] *= survival_rate
             renovation_year += 1
 
     def surviving_proportion_wrapper(self, building_type, building_age):

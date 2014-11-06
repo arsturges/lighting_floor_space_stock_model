@@ -102,6 +102,7 @@ class Demolition(unittest.TestCase):
             surviving_proportion = self.fs.surviving_proportion_wrapper(building_type, building_age)
             self.assertEqual(self.fs.remaining_floor_space_by_year[1990][building_type], 100*surviving_proportion)
 
+    def test_demolish_consecutive_years(self):
         # Further years require renovate() to create later years' year_bins. Instead we create a simple fixture:
         fs_later = FloorSpace(1990, self.square_footage.copy(), 'CA')
         self.assertEqual(fs_later.total_remaining_floor_space(), 10*100)
@@ -112,33 +113,88 @@ class Demolition(unittest.TestCase):
         fs_later.remaining_floor_space_by_year[1992]={1:5,2:5,3:5,4:5,5:5,6:5,9:5,10:5,11:5,78:5}
         # So now each bin in 1990 has 100, 1991 has 0, and 1992 has 5. Total sum should 10*100+10*5
         self.assertEqual(fs_later.current_year, 1992)
-        self.assertEqual(fs_later.total_remaining_floor_space(), 10*100 + 10*5)
+        self.assertEqual(fs_later.total_remaining_floor_space(), 10*100 + 10*0 + 10*5)
 
-        # now demo it in 1993, and see that the right amount of floor space from each of 1990, 1991 (which is 0), and 1992 (5 each) 
-        # got demolished:
+        """ Now we have a FloorSpace object with 1990 (100 each), 1991 (0 each), and 1992 (5 each) bins. 
+        Advance one more year into 1993, and demolish the 1990, 1991, and 1992 bins:"""
 
         fs_later.current_year +=1 # now 1993
+        self.assertEqual(fs_later.current_year, 1993)
         fs_later.demolish()
+    
+        # Now check that each bin has exactly what it should:
+    
         #1990 bin is 3 years old
         building_age = fs_later.current_year - 1990
+        surviving_proportion90={}
         for building_type in [1,2,3,4,5,6,9,10,11,78]:
-            surviving_proportion =fs_later.surviving_proportion_wrapper(building_type, building_age)
-            self.assertEqual(fs_later.remaining_floor_space_by_year[1990][building_type], 100*surviving_proportion)
+            surviving_proportion90[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1990][building_type], 100*surviving_proportion90[building_type])
 
         #1991 bin is 2 years old
         building_age = fs_later.current_year - 1991
+        surviving_proportion91={}
         for building_type in [1,2,3,4,5,6,9,10,11,78]:
-            surviving_proportion =fs_later.surviving_proportion_wrapper(building_type, building_age)
-            self.assertEqual(fs_later.remaining_floor_space_by_year[1991][building_type], 0*surviving_proportion)
+            surviving_proportion91[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1991][building_type], 0*surviving_proportion91[building_type])
 
         #1992 bin is 1 years old
         building_age = fs_later.current_year - 1992
+        surviving_proportion92={}
         for building_type in [1,2,3,4,5,6,9,10,11,78]:
-            surviving_proportion =fs_later.surviving_proportion_wrapper(building_type, building_age)
-            self.assertEqual(fs_later.remaining_floor_space_by_year[1992][building_type], 5*surviving_proportion)
+            surviving_proportion92[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1992][building_type], 5*surviving_proportion92[building_type])
 
+        # Now go one more year, and demo it again:
+        # First create a new 1994 renovation bin:
+        fs_later.remaining_floor_space_by_year[1993]={1:5,2:5,3:5,4:5,5:5,6:5,9:5,10:5,11:5,78:5}
+        fs_later.current_year +=1 # 1994
+        fs_later.demolish()
 
-    
+        #1990 bin is 4 years old
+        self.assertEqual(fs_later.current_year, 1994)
+        building_age = fs_later.current_year - 1990
+        surviving_proportion90b={}
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            surviving_proportion90b[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1990][building_type], 100*surviving_proportion90[building_type]*surviving_proportion90b[building_type])
+
+        #1991 bin is 3 years old
+        building_age = fs_later.current_year - 1991
+        surviving_proportion91b={}
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            surviving_proportion91b[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1991][building_type], 0)
+
+        #1992 bin is 2 years old
+        building_age = fs_later.current_year - 1992
+        surviving_proportion92b={}
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            surviving_proportion92b[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1992][building_type], 5*surviving_proportion92[building_type]*surviving_proportion92b[building_type])
+
+        #1993 bin is 1 years old
+        building_age = fs_later.current_year - 1993
+        surviving_proportion93b={}
+        for building_type in [1,2,3,4,5,6,9,10,11,78]:
+            surviving_proportion93b[building_type] =fs_later.surviving_proportion_wrapper(building_type, building_age)
+            self.assertEqual(fs_later.remaining_floor_space_by_year[1993][building_type], 5*surviving_proportion93b[building_type])
+
+        print "90"
+        pprint.pprint(surviving_proportion90)
+        print "90b"
+        pprint.pprint(surviving_proportion90b)
+        print "91"
+        pprint.pprint(surviving_proportion91)
+        print "91b"
+        pprint.pprint(surviving_proportion91b)
+        print "92"
+        pprint.pprint(surviving_proportion92)
+        print "92b"
+        pprint.pprint(surviving_proportion92b)
+        print "93b"
+        pprint.pprint(surviving_proportion93b)
+
 class TestDistributeToNewBinYear(unittest.TestCase):
     # Receive the newly renovated floor space, the floor space object consisting
     # of the remaining floor space that wasn't renovated, and the year in which
